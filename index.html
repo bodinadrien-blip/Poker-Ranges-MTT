@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Poker Ranges MTT Pro+</title>
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Poker Ranges">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+<style>
+:root{
+  --bg:#0b0d10;
+  --panel:#141820;
+  --border:#1f2633;
+
+  --open:#2ecc71;
+  --call:#1e88e5;
+  --bet3:#ff9800;
+  --allin:#e53935;
+  --fold:#2a2f3a;
+
+  --text:#ffffff;
+  --muted:#8a93a3;
+}
+
+body{
+  margin:0;
+  background:radial-gradient(circle at top,#121621,#07090c);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,Arial;
+}
+
+header{
+  padding:14px;
+  text-align:center;
+  font-weight:800;
+  letter-spacing:1px;
+  background:linear-gradient(180deg,#111520,#0a0c11);
+  border-bottom:1px solid var(--border);
+}
+
+.container{padding:12px}
+
+select,button{
+  width:100%;
+  padding:12px;
+  margin-bottom:10px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  background:var(--panel);
+  color:var(--text);
+  font-size:15px;
+  font-weight:600;
+}
+
+button{
+  background:linear-gradient(135deg,#1f2937,#111827);
+}
+
+button:active{transform:scale(.98)}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(13,1fr);
+  gap:3px;
+  transform:scale(.75);
+  transform-origin:top center;
+}
+
+.cell{
+  aspect-ratio:1/1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:38px;
+  border-radius:10px;
+  font-weight:700;
+  letter-spacing:.5px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.06),
+    0 2px 6px rgba(0,0,0,.6);
+  transition:.1s;
+}
+
+.cell:active{transform:scale(.95)}
+
+.open{background:linear-gradient(135deg,#1e824c,var(--open))}
+.call{background:linear-gradient(135deg,#1565c0,var(--call))}
+.bet3{background:linear-gradient(135deg,#ff6f00,var(--bet3));color:#000}
+.allin{background:linear-gradient(135deg,#b71c1c,var(--allin))}
+.fold{background:var(--fold);color:var(--muted)}
+
+.legend{
+  display:flex;
+  justify-content:space-between;
+  margin:10px 0;
+  font-size:12px;
+  color:var(--muted);
+}
+
+.legend div{display:flex;align-items:center;gap:4px}
+.box{width:12px;height:12px;border-radius:3px}
+
+#percent{
+  text-align:center;
+  font-weight:700;
+  margin:10px 0;
+  letter-spacing:.5px;
+}
+</style>
+</head>
+
+<body>
+<header>♠️ POKER RANGES — MTT PRO</header>
+
+<div class="container">
+
+<select id="spot">
+  <option>UTG</option><option>HJ</option><option>CO</option>
+  <option>BTN</option><option>SB</option><option>BB</option>
+</select>
+
+<select id="stack">
+  <option value="8bb-">≤ 8bb</option>
+  <option value="12bb">9–12bb</option>
+  <option value="25bb+">≥ 25bb</option>
+</select>
+
+<select id="action">
+  <option value="open">Open</option>
+  <option value="call">Call</option>
+  <option value="bet3">3bet</option>
+  <option value="allin">All-in</option>
+  <option value="fold">Fold</option>
+</select>
+
+<button onclick="resetRange()">🔄 RESET RANGE</button>
+<button onclick="exportImage()">📤 EXPORT IMAGE</button>
+
+<div id="percent">Range : 0%</div>
+
+<div class="legend">
+  <div><div class="box open"></div>Open</div>
+  <div><div class="box call"></div>Call</div>
+  <div><div class="box bet3"></div>3bet</div>
+  <div><div class="box allin"></div>All-in</div>
+  <div><div class="box fold"></div>Fold</div>
+</div>
+
+<div id="grid" class="grid"></div>
+</div>
+
+<script>
+const ranks=["A","K","Q","J","T","9","8","7","6","5","4","3","2"];
+const grid=document.getElementById("grid");
+
+function key(){
+  return `range_${spot.value}_${stack.value}_${action.value}`;
+}
+
+function build(){
+  grid.innerHTML="";
+  let saved=JSON.parse(localStorage.getItem(key())||"{}");
+
+  ranks.forEach((r,i)=>{
+    ranks.forEach((c,j)=>{
+      let h=i==j?r+r:i<j?r+c+"s":c+r+"o";
+      let d=document.createElement("div");
+      d.className="cell "+(saved[h]||"fold");
+      d.textContent=h;
+      d.onclick=()=>{
+        d.className="cell "+action.value;
+        saved[h]=action.value;
+        localStorage.setItem(key(),JSON.stringify(saved));
+        updatePercent();
+      };
+      grid.appendChild(d);
+    });
+  });
+  updatePercent();
+}
+
+function updatePercent(){
+  let a=[...document.querySelectorAll('.cell')].filter(c=>!c.classList.contains('fold')).length;
+  percent.textContent=`${spot.value} · ${stack.value} · ${action.value.toUpperCase()} : ${(a/169*100).toFixed(1)}%`;
+}
+
+function resetRange(){
+  if(confirm("Effacer cette range ?")){
+    localStorage.removeItem(key());
+    build();
+  }
+}
+
+function exportImage(){
+  html2canvas(grid).then(c=>{
+    let a=document.createElement("a");
+    a.download=`${spot.value}_${stack.value}_${action.value}.png`;
+    a.href=c.toDataURL();
+    a.click();
+  });
+}
+
+spot.onchange=stack.onchange=action.onchange=build;
+build();
+
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js');
+}
+</script>
+</body>
+</html>
