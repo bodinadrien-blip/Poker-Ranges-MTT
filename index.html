@@ -116,15 +116,6 @@ button:active{transform:scale(.98)}
 
 <select id="stack"></select>
 
-const stackOptions={
-  UTG:["12bb","20bb,30bb-,45bb-,50bb+"],
-  HJ:["12bb","25bb+"],
-  CO:["12bb","25bb+"],
-  BTN:["+25bb"],
-  SB:["8bb-","12bb"],
-  BB:["8bb-","12bb"]
-};
-
 <select id="action">
   <option value="open">Open</option>
   <option value="call">Call</option>
@@ -153,7 +144,14 @@ const stackOptions={
 const ranks=["A","K","Q","J","T","9","8","7","6","5","4","3","2"];
 const grid=document.getElementById("grid");
 
-
+const stackOptions={
+  UTG:["12bb","25bb+"],
+  HJ:["12bb","25bb+"],
+  CO:["12bb","25bb+"],
+  BTN:["8bb-","12bb","25bb+"],
+  SB:["8bb-","12bb"],
+  BB:["8bb-","12bb"]
+};
 
 function updateStackOptions(){
   stack.innerHTML="";
