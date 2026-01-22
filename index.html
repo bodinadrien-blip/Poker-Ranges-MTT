@@ -156,11 +156,7 @@ function updateStackOptions(){
   stack.innerHTML = "";
   stackOptionsByAction[action.value].forEach(v=>{
     let o = document.createElement("option");
-    o.value = v;
-    o.textContent =
-      v === "8bb-" ? "≤ 8bb" :
-      v === "12bb" ? "9–12bb" :
-      "≥ 25bb";
+
     stack.appendChild(o);
   });
 }
