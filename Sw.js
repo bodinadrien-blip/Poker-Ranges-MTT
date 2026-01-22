@@ -1,4 +1,4 @@
-const CACHE = "poker-ranges-v11";
+const CACHE = "poker-ranges-v12";
 const FILES = [
   "./",
   "./index.html",
