@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Poker Ranges MTT Pro+</title>
 
+<!-- iOS PWA -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Poker Ranges">
@@ -18,14 +19,12 @@
   --bg:#0b0d10;
   --panel:#141820;
   --border:#1f2633;
-
   --open:#2ecc71;
   --call:#1e88e5;
   --bet3:#ff9800;
   --allin:#e53935;
   --fold:#2a2f3a;
-
-  --text:#ffffff;
+  --text:#fff;
   --muted:#8a93a3;
 }
 
@@ -59,10 +58,7 @@ select,button{
   font-weight:600;
 }
 
-button{
-  background:linear-gradient(135deg,#1f2937,#111827);
-}
-
+button{background:linear-gradient(135deg,#1f2937,#111827)}
 button:active{transform:scale(.98)}
 
 .grid{
@@ -70,8 +66,6 @@ button:active{transform:scale(.98)}
   grid-template-columns:repeat(13,1fr);
   gap:2px;
   width:100%;
-  max-width:100vw;
-  margin:0 auto;
 }
 
 .cell{
@@ -79,17 +73,12 @@ button:active{transform:scale(.98)}
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:clamp(14px, 3.5vw, 26px);
-  border-radius:10px;
+  font-size:clamp(14px,3.5vw,26px);
+  border-radius:8px;
   font-weight:700;
-  letter-spacing:.5px;
-  box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,.06),
-    0 2px 6px rgba(0,0,0,.6);
-  transition:.1s;
+  letter-spacing:.4px;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);
 }
-
-.cell:active{transform:scale(.95)}
 
 .open{background:linear-gradient(135deg,#1e824c,var(--open))}
 .call{background:linear-gradient(135deg,#1565c0,var(--call))}
@@ -100,19 +89,17 @@ button:active{transform:scale(.98)}
 .legend{
   display:flex;
   justify-content:space-between;
-  margin:10px 0;
   font-size:12px;
+  margin:8px 0;
   color:var(--muted);
 }
-
 .legend div{display:flex;align-items:center;gap:4px}
 .box{width:12px;height:12px;border-radius:3px}
 
 #percent{
   text-align:center;
   font-weight:700;
-  margin:10px 0;
-  letter-spacing:.5px;
+  margin:8px 0;
 }
 </style>
 </head>
@@ -128,15 +115,6 @@ button:active{transform:scale(.98)}
 </select>
 
 <select id="stack"></select>
-  const stackOptions = {
-  UTG: ["12bb", "25bb+"],
-  HJ: ["12bb", "25bb+"],
-  CO: ["12bb", "25bb+"],
-  BTN: ["8bb-", "12bb", "25bb+"],
-  SB: ["8bb-", "12bb"],
-  BB: ["8bb-", "12bb"]
-};
-
 
 <select id="action">
   <option value="open">Open</option>
@@ -166,6 +144,25 @@ button:active{transform:scale(.98)}
 const ranks=["A","K","Q","J","T","9","8","7","6","5","4","3","2"];
 const grid=document.getElementById("grid");
 
+const stackOptions={
+  UTG:["12bb","25bb+"],
+  HJ:["12bb","25bb+"],
+  CO:["12bb","25bb+"],
+  BTN:["8bb-","12bb","25bb+"],
+  SB:["8bb-","12bb"],
+  BB:["8bb-","12bb"]
+};
+
+function updateStackOptions(){
+  stack.innerHTML="";
+  stackOptions[spot.value].forEach(v=>{
+    let o=document.createElement("option");
+    o.value=v;
+    o.textContent=v==="8bb-"?"≤8bb":v==="12bb"?"9–12bb":"≥25bb";
+    stack.appendChild(o);
+  });
+}
+
 function key(){
   return `range_${spot.value}_${stack.value}`;
 }
@@ -194,11 +191,11 @@ function build(){
 
 function updatePercent(){
   let a=[...document.querySelectorAll('.cell')].filter(c=>!c.classList.contains('fold')).length;
-  percent.textContent=`${spot.value} · ${stack.value} · ${action.value.toUpperCase()} : ${(a/169*100).toFixed(1)}%`;
+  percent.textContent=`${spot.value} · ${stack.value} : ${(a/169*100).toFixed(1)}%`;
 }
 
 function resetRange(){
-  if(confirm("Effacer cette range ?")){
+  if(confirm("Effacer la range ?")){
     localStorage.removeItem(key());
     build();
   }
@@ -207,16 +204,22 @@ function resetRange(){
 function exportImage(){
   html2canvas(grid).then(c=>{
     let a=document.createElement("a");
-    a.download=`${spot.value}_${stack.value}_${action.value}.png`;
+    a.download=`${spot.value}_${stack.value}.png`;
     a.href=c.toDataURL();
     a.click();
   });
 }
 
-spot.onchange=stack.onchange=action.onchange=build;
+spot.onchange=()=>{
+  updateStackOptions();
+  build();
+};
+stack.onchange=action.onchange=build;
+
+updateStackOptions();
 build();
 
-if('serviceWorker' in navigator){
+if('serviceWorker'in navigator){
   navigator.serviceWorker.register('sw.js');
 }
 </script>
