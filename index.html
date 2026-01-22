@@ -101,6 +101,15 @@ button:active{transform:scale(.98)}
   font-weight:700;
   margin:8px 0;
 }
+
+select{
+  letter-spacing:.5px;
+}
+
+select option{
+  font-weight:600;
+}
+
 </style>
 </head>
 
@@ -145,17 +154,28 @@ const ranks=["A","K","Q","J","T","9","8","7","6","5","4","3","2"];
 const grid=document.getElementById("grid");
 
 const stackOptionsByAction = {
-  open: ["20bb(x2)","30bb(x2,5),45bb(x3)"],
-  call: ["12bb","25bb+"],
-  bet3: ["12bb","25bb+"],
-  allin: ["8bb-","12bb"],
-  fold: ["12bb","25bb+"]
+  open: [
+    { value: "20bb", mult: "x2" },
+    { value: "30bb", mult: "x2.5" },
+    { value: "45bb", mult: "x3" }
+  ],
+  call: [{ value: "12bb" }, { value: "25bb+" }],
+  bet3: [{ value: "12bb" }, { value: "25bb+" }],
+  allin: [{ value: "8bb-" }, { value: "12bb" }],
+  fold: [{ value: "12bb" }, { value: "25bb+" }]
 };
 
 function updateStackOptions(){
   stack.innerHTML = "";
-  stackOptionsByAction[action.value].forEach(v=>{
+
+  stackOptionsByAction[action.value].forEach(s=>{
     let o = document.createElement("option");
+    o.value = s.value;
+
+    // Affichage stylé
+    o.textContent = s.mult
+      ? `${s.value}  —  ${s.mult}`
+      : s.value;
 
     stack.appendChild(o);
   });
@@ -210,6 +230,7 @@ function exportImage(){
 
 action.onchange = ()=>{
   updateStackOptions();
+  stack.selectedIndex = 0; // force un stack valide
   build();
 };
 
