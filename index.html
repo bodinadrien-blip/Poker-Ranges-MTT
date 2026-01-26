@@ -223,6 +223,8 @@ button:active{transform:scale(.98)}
 <button id="coachToggle">🧠 Mode coach : OFF</button>
 <button onclick="resetRange()">🔄 RESET RANGE</button>
 <button onclick="exportImage()">📤 EXPORT IMAGE</button>
+<button onclick="exportJSON()">💾 Export Ranges (JSON)</button>
+<button onclick="importJSON()">📂 Import Ranges (JSON)</button>
 
 <div id="percent">Range : 0%</div>
 
@@ -533,6 +535,63 @@ coachBtn.onclick = ()=>{
     ? "🧠 Mode coach : ON"
     : "🧠 Mode coach : OFF";
 };
+
+function exportJSON(){
+  const tx = db.transaction("ranges","readonly");
+  const store = tx.objectStore("ranges");
+  const req = store.getAll();
+  const keysReq = store.getAllKeys();
+
+  Promise.all([
+    new Promise(res=>req.onsuccess=()=>res(req.result)),
+    new Promise(res=>keysReq.onsuccess=()=>res(keysReq.result))
+  ]).then(([values,keys])=>{
+    const data = {};
+    keys.forEach((k,i)=>data[k]=values[i]);
+
+    const blob = new Blob(
+      [JSON.stringify(data,null,2)],
+      {type:"application/json"}
+    );
+
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "poker_ranges_backup.json";
+    a.click();
+  });
+}
+
+function importJSON(){
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "application/json";
+
+  input.onchange = e=>{
+    const file = e.target.files[0];
+    if(!file) return;
+
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      try{
+        const data = JSON.parse(reader.result);
+        const tx = db.transaction("ranges","readwrite");
+        const store = tx.objectStore("ranges");
+
+        Object.keys(data).forEach(k=>{
+          store.put(data[k],k);
+        });
+
+        alert("✅ Ranges importées avec succès");
+        build();
+      }catch(err){
+        alert("❌ Fichier invalide");
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  input.click();
+}
 </script>
 </body>
 </html>
