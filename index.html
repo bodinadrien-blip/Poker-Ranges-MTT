@@ -228,7 +228,12 @@ button:active{transform:scale(.98)}
 </div>
 </div>
 
-<select id="stack"></select>
+<select id="stack">
+  o.value = `${opt.label}_${opt.mult || ""}`;
+o.textContent = opt.mult
+  ? `${opt.label} (${opt.mult})`
+  : opt.label;
+</select>
 
 <div class="actions">
   <button id="coachToggle">🧠 Mode coach : OFF</button>
@@ -404,7 +409,7 @@ req.onsuccess=e=>{
 };
 
 function key(){
-  return `${spot.value}_${action.value}_${stack.value}`;
+  return `range_${spot.value}_${action.value}_${stack.value}`;
 }
 
 function save(data){
