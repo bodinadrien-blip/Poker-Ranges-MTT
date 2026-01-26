@@ -178,28 +178,80 @@ const grid=document.getElementById("grid");
 const percent=document.getElementById("percent");
 const openInfo=document.getElementById("openInfo");
 
-const stackOptionsByAction = {
-  open: [
-    { label: "20bb", mult: "x2" },
-    { label: "30bb", mult: "x2.5" },
-    { label: "45bb", mult: "x3" }
-  ],
-  call: [
-    { label: "Standard", mult: "x2 → x3" }
-  ],
-  bet3: [
-    { label: "12–30bb", mult: "Deep" },
-    { label: "30–50bb", mult: "Short" },
-    { label: "+50bb", mult: "Light" }
-  ],
-  allin: [
-    { label: "+25bb", mult: "si relance 2bb call ou rase" },
-    { label: "+25bb", mult: "call ALL in en position" }
-  ],
-  fold: [
-    { label: "12bb" },
-    { label: "25bb+" }
-  ]
+const stackOptionsByPosition = {
+  UTG:{
+    open:[
+      {label:"30bb",mult:"x2"},
+      {label:"45bb",mult:"x2.5"}
+    ],
+    call:[{label:"Standard"}],
+    bet3:[{label:"12–30bb",mult:"Value"}],
+    allin:[{label:"≤8bb"}],
+    fold:[{label:"—"}]
+  },
+
+  HJ:{
+    open:[
+      {label:"25bb",mult:"x2"},
+      {label:"40bb",mult:"x2.5"}
+    ],
+    call:[{label:"Standard"}],
+    bet3:[{label:"12–30bb",mult:"Mix"}],
+    allin:[{label:"≤10bb"}],
+    fold:[{label:"—"}]
+  },
+
+  CO:{
+    open:[
+      {label:"20bb",mult:"x2"},
+      {label:"35bb",mult:"x2.5"},
+      {label:"50bb",mult:"x3"}
+    ],
+    call:[{label:"Large"}],
+    bet3:[
+      {label:"12–30bb",mult:"Value"},
+      {label:"+50bb",mult:"Light"}
+    ],
+    allin:[{label:"≤12bb"}],
+    fold:[{label:"—"}]
+  },
+
+  BTN:{
+    open:[
+      {label:"20bb",mult:"x2"},
+      {label:"30bb",mult:"x2.5"},
+      {label:"45bb",mult:"x3"}
+    ],
+    call:[{label:"Très large"}],
+    bet3:[
+      {label:"15–30bb",mult:"Aggro"},
+      {label:"+50bb",mult:"Light"}
+    ],
+    allin:[{label:"≤15bb"}],
+    fold:[{label:"—"}]
+  },
+
+  SB:{
+    open:[
+      {label:"20bb",mult:"x2.5"},
+      {label:"40bb",mult:"x3"}
+    ],
+    call:[{label:"Rare"}],
+    bet3:[{label:"12–25bb",mult:"Polarisé"}],
+    allin:[{label:"≤12bb"}],
+    fold:[{label:"—"}]
+  },
+
+  BB:{
+    open:[{label:"—"}],
+    call:[{label:"Très large"}],
+    bet3:[
+      {label:"15–30bb",mult:"Value"},
+      {label:"+40bb",mult:"Light"}
+    ],
+    allin:[{label:"≤15bb"}],
+    fold:[{label:"—"}]
+  }
 };
 
 /* ---------- IndexedDB ---------- */
@@ -234,18 +286,20 @@ function load(cb){
 }
 
 function updateStackOptions(){
-  stack.innerHTML = "";
+  stack.innerHTML="";
 
-  stackOptionsByAction[action.value].forEach(opt=>{
-    const o = document.createElement("option");
+  const pos = spot.value;
+  const act = action.value;
 
-    o.value = opt.label;
+  const options = stackOptionsByPosition[pos][act] || [];
 
-    o.innerHTML = opt.mult
-      ? `${opt.label} <span style="opacity:.6">(${opt.mult})</span>`
-      : opt.label;
-
-    stack.appendChild(o);
+  options.forEach(o=>{
+    const opt=document.createElement("option");
+    opt.value=o.label;
+    opt.innerHTML=o.mult
+      ? `${o.label} <span style="opacity:.6">(${o.mult})</span>`
+      : o.label;
+    stack.appendChild(opt);
   });
 }
 
@@ -310,8 +364,16 @@ action.onchange=()=>{
   build();
 };
 
-spot.onchange=stack.onchange=build;
-openInfo.style.display="block";
+spot.onchange = ()=>{
+  updateStackOptions();
+  build();
+};
+
+action.onchange = ()=>{
+  updateStackOptions();
+  openInfo.style.display = action.value==="open" ? "block" : "none";
+  build();
+};
 </script>
 </body>
 </html>
