@@ -435,10 +435,20 @@ function build(){
         d.className="cell "+(saved[h]||"fold");
         d.textContent=h;
         d.onclick=()=>{
-  if(coachMode) return; // ⛔ lecture seule
+  if(coachMode) return;
 
-  d.className="cell "+action.value;
-  saved[h]=action.value;
+  const current = saved[h] || "fold";
+
+  if(current === action.value){
+    // 🔁 second clic = retirer la main
+    d.className = "cell fold";
+    delete saved[h];
+  }else{
+    // 🎨 appliquer l’action
+    d.className = "cell " + action.value;
+    saved[h] = action.value;
+  }
+
   save(saved);
   updatePercent();
 };
