@@ -1,4 +1,4 @@
-eii<!DOCTYPE html>
+ieii<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -426,6 +426,14 @@ action.onchange = ()=>{
   openInfo.style.display = action.value==="open" ? "block" : "none";
   build();
 };
+
+document.querySelectorAll(".info").forEach(el=>{
+  el.onclick = ()=>{
+    const t = el.querySelector(".tooltip");
+    t.style.display = t.style.display==="block" ? "none" : "block";
+  };
+});
+
 </script>
 </body>
 </html>
