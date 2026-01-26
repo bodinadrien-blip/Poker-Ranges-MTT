@@ -141,7 +141,7 @@ button:active{transform:scale(.98)}
 .info .tooltip{
   display:none;
   position:absolute;
-  top:22px;
+  top:26px;
   left:0;
   background:var(--panel);
   border:1px solid var(--border);
@@ -149,9 +149,15 @@ button:active{transform:scale(.98)}
   padding:10px;
   font-size:12px;
   line-height:1.4;
-  box-shadow:0 6px 20px rgba(0,0,0,.6);
+  box-shadow:0 8px 30px rgba(0,0,0,.8);
+  z-index:9999;          /* 🔥 CRITIQUE */
+  min-width:180px;
+}
+
+.info{
+  position:relative;
+  pointer-events:auto;
   z-index:10;
-  min-width:160px;
 }
 </style>
 </head>
@@ -428,11 +434,21 @@ action.onchange = ()=>{
 };
 
 document.querySelectorAll(".info").forEach(el=>{
-  el.onclick = ()=>{
+  el.onclick = e=>{
+    e.stopPropagation();
+
+    document.querySelectorAll(".tooltip").forEach(t=>{
+      if(t !== el.querySelector(".tooltip")) t.style.display="none";
+    });
+
     const t = el.querySelector(".tooltip");
     t.style.display = t.style.display==="block" ? "none" : "block";
   };
 });
+
+document.body.onclick = ()=>{
+  document.querySelectorAll(".tooltip").forEach(t=>t.style.display="none");
+};
 
 </script>
 </body>
