@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Poker Ranges MTT Pro+</title>
+<title>Poker Ranges MTT Pro</title>
 
 <!-- iOS PWA -->
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -56,9 +56,14 @@ select,button{
   color:var(--text);
   font-size:15px;
   font-weight:600;
+  letter-spacing:.4px;
 }
 
-button{background:linear-gradient(135deg,#1f2937,#111827)}
+select option{font-weight:600}
+
+button{
+  background:linear-gradient(135deg,#1f2937,#111827);
+}
 button:active{transform:scale(.98)}
 
 .grid{
@@ -73,7 +78,7 @@ button:active{transform:scale(.98)}
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:clamp(14px,3.5vw,26px);
+  font-size:clamp(13px,3.4vw,24px);
   border-radius:8px;
   font-weight:700;
   letter-spacing:.4px;
@@ -98,18 +103,26 @@ button:active{transform:scale(.98)}
 
 #percent{
   text-align:center;
-  font-weight:700;
+  font-weight:800;
   margin:8px 0;
 }
 
-select{
-  letter-spacing:.5px;
+/* Tooltip */
+.info{
+  font-size:13px;
+  color:var(--muted);
+  margin:-4px 0 10px;
+  position:relative;
 }
-
-select option{
-  font-weight:600;
+.tooltip{
+  display:none;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:10px;
+  margin-top:6px;
+  font-size:12px;
 }
-
 </style>
 </head>
 
@@ -123,14 +136,25 @@ select option{
   <option>BTN</option><option>SB</option><option>BB</option>
 </select>
 
-<select id="stack"></select>
-
 <select id="action">
   <option value="open">Open</option>
   <option value="call">Call</option>
   <option value="bet3">3bet</option>
   <option value="allin">All-in</option>
+  <option value="fold">Fold</option>
 </select>
+
+<div id="openInfo" class="info">
+  ℹ️ Open size
+  <div class="tooltip">
+    <strong>Open size</strong><br>
+    x2 = standard<br>
+    x2.5 = pression<br>
+    x3 = iso / punition
+  </div>
+</div>
+
+<select id="stack"></select>
 
 <button onclick="resetRange()">🔄 RESET RANGE</button>
 <button onclick="exportImage()">📤 EXPORT IMAGE</button>
@@ -151,6 +175,8 @@ select option{
 <script>
 const ranks=["A","K","Q","J","T","9","8","7","6","5","4","3","2"];
 const grid=document.getElementById("grid");
+const percent=document.getElementById("percent");
+const openInfo=document.getElementById("openInfo");
 
 const stackOptionsByAction = {
   open: [
@@ -176,6 +202,37 @@ const stackOptionsByAction = {
   ]
 };
 
+/* ---------- IndexedDB ---------- */
+let db;
+const DB_NAME="PokerRangesDB";
+const STORE="ranges";
+
+const req=indexedDB.open(DB_NAME,1);
+req.onupgradeneeded=e=>{
+  db=e.target.result;
+  db.createObjectStore(STORE);
+};
+req.onsuccess=e=>{
+  db=e.target.result;
+  updateStackOptions();
+  build();
+};
+
+function key(){
+  return `${spot.value}_${action.value}_${stack.value}`;
+}
+
+function save(data){
+  const tx=db.transaction(STORE,"readwrite");
+  tx.objectStore(STORE).put(data,key());
+}
+
+function load(cb){
+  const tx=db.transaction(STORE,"readonly");
+  const r=tx.objectStore(STORE).get(key());
+  r.onsuccess=()=>cb(r.result||{});
+}
+
 function updateStackOptions(){
   stack.innerHTML = "";
 
@@ -197,62 +254,64 @@ function key(){
 }
 
 function build(){
+  if(!db) return;
   grid.innerHTML="";
-  let saved=JSON.parse(localStorage.getItem(key())||"{}");
-
-  ranks.forEach((r,i)=>{
-    ranks.forEach((c,j)=>{
-      let h=i==j?r+r:i<j?r+c+"s":c+r+"o";
-      let d=document.createElement("div");
-      d.className="cell "+(saved[h]||"fold");
-      d.textContent=h;
-      d.onclick=()=>{
-        d.className="cell "+action.value;
-        saved[h]=action.value;
-        localStorage.setItem(key(),JSON.stringify(saved));
-        updatePercent();
-      };
-      grid.appendChild(d);
+  load(saved=>{
+    ranks.forEach((r,i)=>{
+      ranks.forEach((c,j)=>{
+        const h=i==j?r+r:i<j?r+c+"s":c+r+"o";
+        const d=document.createElement("div");
+        d.className="cell "+(saved[h]||"fold");
+        d.textContent=h;
+        d.onclick=()=>{
+          d.className="cell "+action.value;
+          saved[h]=action.value;
+          save(saved);
+          updatePercent();
+        };
+        grid.appendChild(d);
+      });
     });
+    updatePercent();
   });
-  updatePercent();
 }
 
 function updatePercent(){
-  let a=[...document.querySelectorAll('.cell')].filter(c=>!c.classList.contains('fold')).length;
-  percent.textContent=`${spot.value} · ${stack.value} : ${(a/169*100).toFixed(1)}%`;
+  const a=[...document.querySelectorAll(".cell")].filter(c=>!c.classList.contains("fold")).length;
+  percent.textContent=`${spot.value} · ${action.value} · ${stack.value} : ${(a/169*100).toFixed(1)}%`;
 }
 
 function resetRange(){
-  if(confirm("Effacer la range ?")){
-    localStorage.removeItem(key());
+  if(confirm("Effacer cette range ?")){
+    const tx=db.transaction(STORE,"readwrite");
+    tx.objectStore(STORE).delete(key());
     build();
   }
 }
 
 function exportImage(){
   html2canvas(grid).then(c=>{
-    let a=document.createElement("a");
-    a.download=`${spot.value}_${stack.value}.png`;
+    const a=document.createElement("a");
+    a.download=`${spot.value}_${action.value}_${stack.value}.png`;
     a.href=c.toDataURL();
     a.click();
   });
 }
 
-action.onchange = ()=>{
+/* UI */
+openInfo.onclick=()=>{
+  const t=openInfo.querySelector(".tooltip");
+  t.style.display=t.style.display==="block"?"none":"block";
+};
+
+action.onchange=()=>{
   updateStackOptions();
-  stack.selectedIndex = 0; // force un stack valide
+  openInfo.style.display=action.value==="open"?"block":"none";
   build();
 };
 
-spot.onchange = stack.onchange = build;
-
-updateStackOptions();
-build();
-
-if('serviceWorker'in navigator){
-  navigator.serviceWorker.register('sw.js');
-}
+spot.onchange=stack.onchange=build;
+openInfo.style.display="block";
 </script>
 </body>
 </html>
