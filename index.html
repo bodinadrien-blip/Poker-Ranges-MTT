@@ -172,6 +172,16 @@ button:active{transform:scale(.98)}
   margin-bottom:6px;
   font-weight:700;
 }
+
+.actions{
+  display:flex;
+  gap:8px;
+}
+
+.actions button{
+  background:linear-gradient(135deg,#1f2937,#0f172a);
+  border:1px solid #1f2937;
+}
 </style>
 </head>
 
@@ -222,9 +232,11 @@ button:active{transform:scale(.98)}
 
 <button id="coachToggle">🧠 Mode coach : OFF</button>
 <button onclick="resetRange()">🔄 RESET RANGE</button>
-<button onclick="exportImage()">📤 EXPORT IMAGE</button>
-<button onclick="exportJSON()">💾 Export Ranges (JSON)</button>
-<button onclick="importJSON()">📂 Import Ranges (JSON)</button>
+<div class="actions">
+  <button onclick="exportImage()">📤 Image</button>
+  <button onclick="exportJSON()">💾 JSON</button>
+  <button onclick="importJSON()">📂 Import</button>
+</div>
 
 <div id="percent">Range : 0%</div>
 
