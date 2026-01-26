@@ -236,9 +236,16 @@ const stackOptionsByPosition = {
       {label:"30bb",mult:"x2.5"},
       {label:"45bb",mult:"x3"}
     ],
-    call:[{label:"Standard"}],
-    bet3:[{label:"12–30bb",mult:"Value"}],
-    allin:[{label:"≤8bb"}],
+    call:[
+      {label:"Standard",mult:"2bb x3 possible cher"}],
+    bet3:[
+      {label:"12–30bb",mult:"Deep stack"},
+      {label:"30-50bb",mult:"3bet short"},
+      {label:"12–30bb",mult:"3bet light"}
+    ],
+    allin:[
+      {label:"si relance ac +25bb",mult"call ou rase"}
+    ],
     fold:[{label:"—"}]
   },
 
@@ -248,9 +255,16 @@ const stackOptionsByPosition = {
       {label:"30bb",mult:"x2.5"},
       {label:"45bb",mult:"x3"}
     ],
-    call:[{label:"Standard"}],
-    bet3:[{label:"12–30bb",mult:"Mix"}],
-    allin:[{label:"≤10bb"}],
+    call:[
+      {label:"Standard",mult:"2bb x3 possible cher"}],
+    bet3:[
+      {label:"12–30bb",mult:"Deep stack"},
+      {label:"30-50bb",mult:"3bet short"},
+      {label:"12–30bb",mult:"3bet light"}
+    ],
+    allin:[
+      {label:"si relance ac +25bb",mult"call ou rase"}
+    ],
     fold:[{label:"—"}]
   },
 
@@ -260,12 +274,16 @@ const stackOptionsByPosition = {
       {label:"30bb",mult:"x2.5"},
       {label:"45bb",mult:"x3"}
     ],
-    call:[{label:"Large"}],
+    call:[
+      {label:"Standard",mult:"2bb"}],
     bet3:[
-      {label:"12–30bb",mult:"Value"},
-      {label:"+50bb",mult:"Light"}
+      {label:"12–30bb",mult:"Deep stack"},
+      {label:"30-50bb",mult:"3bet short"},
+      {label:"12–30bb",mult:"3bet light"}
     ],
-    allin:[{label:"≤12bb"}],
+    allin:[
+      {label:"si relance ac +25bb",mult"call ou rase"}
+    ],
     fold:[{label:"—"}]
   },
 
@@ -275,12 +293,16 @@ const stackOptionsByPosition = {
       {label:"30bb",mult:"x2.5"},
       {label:"45bb",mult:"x3"}
     ],
-    call:[{label:"Très large"}],
+    call:[
+      {label:"Standard",mult:"2bb"}],
     bet3:[
-      {label:"15–30bb",mult:"Aggro"},
-      {label:"+50bb",mult:"Light"}
+      {label:"12–30bb",mult:"Deep stack"},
+      {label:"30-50bb",mult:"3bet short"},
+      {label:"12–30bb",mult:"3bet light"}
     ],
-    allin:[{label:"≤15bb"}],
+    allin:[
+      {label:"+25bb"}
+    ],
     fold:[{label:"—"}]
   },
 
@@ -290,9 +312,20 @@ const stackOptionsByPosition = {
       {label:"M mtt",mult:"x2.5"},
       {label:"F mtt",mult:"x2.1"}
     ],
-    call:[{label:"Rare"}],
-    bet3:[{label:"12–25bb",mult:"Polarisé"}],
-    allin:[{label:"≤12bb"}],
+    call:[
+      {label:"Si pas relance",mult"2bb"},
+      {label:"Si pas relance",mult"relance +2bb"},
+      {label:"Limp / relance",mult"1bb"},
+      {label:"+30bb Limp / relance",mult"1bb"}
+  ],
+    bet3:[
+      {label:"12–30bb",mult:"Deep stack"},
+      {label:"30-50bb",mult:"3bet short"},
+      {label:"12–30bb",mult:"3bet light"}
+    ],
+    allin:[
+      {label:"si relance ac +25bb",mult"call ou rase"}
+    ],
     fold:[{label:"—"}]
   },
 
@@ -302,12 +335,20 @@ const stackOptionsByPosition = {
       {label:"M mtt",mult:"x2.5"},
       {label:"F mtt",mult:"x2.1"}
     ],
-    call:[{label:"Très large"}],
-    bet3:[
-      {label:"15–30bb",mult:"Value"},
-      {label:"+40bb",mult:"Light"}
+    call:[
+      {label:"Call",mult"2bb"}
+      {label:"Rase",mult"min 2bb voir x3 ou tapis si 2 joueurs suivent"}
     ],
-    allin:[{label:"≤15bb"}],
+    bet3:[
+      {label:"12–30bb",mult:"Deep stack"},
+      {label:"30-50bb",mult:"3bet short"},
+      {label:"12–30bb",mult:"3bet light"}
+    ],
+    allin:[
+      {label:"si relance ac +25bb",mult"call ou rase"}
+      {label:"-12bb"}
+      {label:"-8bb"}
+    ],
     fold:[{label:"—"}]
   }
 };
