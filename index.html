@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+i<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -181,8 +181,9 @@ const openInfo=document.getElementById("openInfo");
 const stackOptionsByPosition = {
   UTG:{
     open:[
-      {label:"30bb",mult:"x2"},
-      {label:"45bb",mult:"x2.5"}
+      {label:"20bb",mult:"x2"},
+      {label:"30bb",mult:"x2.5"}
+      {label:"45bb",mult:"x3"}
     ],
     call:[{label:"Standard"}],
     bet3:[{label:"12–30bb",mult:"Value"}],
@@ -192,8 +193,9 @@ const stackOptionsByPosition = {
 
   HJ:{
     open:[
-      {label:"25bb",mult:"x2"},
-      {label:"40bb",mult:"x2.5"}
+      {label:"20bb",mult:"x2"},
+      {label:"30bb",mult:"x2.5"}
+      {label:"45bb",mult:"x3"}
     ],
     call:[{label:"Standard"}],
     bet3:[{label:"12–30bb",mult:"Mix"}],
@@ -204,8 +206,8 @@ const stackOptionsByPosition = {
   CO:{
     open:[
       {label:"20bb",mult:"x2"},
-      {label:"35bb",mult:"x2.5"},
-      {label:"50bb",mult:"x3"}
+      {label:"30bb",mult:"x2.5"}
+      {label:"45bb",mult:"x3"}
     ],
     call:[{label:"Large"}],
     bet3:[
@@ -219,7 +221,7 @@ const stackOptionsByPosition = {
   BTN:{
     open:[
       {label:"20bb",mult:"x2"},
-      {label:"30bb",mult:"x2.5"},
+      {label:"30bb",mult:"x2.5"}
       {label:"45bb",mult:"x3"}
     ],
     call:[{label:"Très large"}],
@@ -233,8 +235,9 @@ const stackOptionsByPosition = {
 
   SB:{
     open:[
-      {label:"20bb",mult:"x2.5"},
-      {label:"40bb",mult:"x3"}
+      {label:"D mtt",mult:"x3.5"},
+      {label:"M mtt",mult:"x2.5"}
+      {label:"F mtt",mult:"x2.1"}
     ],
     call:[{label:"Rare"}],
     bet3:[{label:"12–25bb",mult:"Polarisé"}],
@@ -243,7 +246,11 @@ const stackOptionsByPosition = {
   },
 
   BB:{
-    open:[{label:"—"}],
+    open:[
+      {label:"D mtt",mult:"x3.5"},
+      {label:"M mtt",mult:"x2.5"}
+      {label:"F mtt",mult:"x2.1"}
+    ],
     call:[{label:"Très large"}],
     bet3:[
       {label:"15–30bb",mult:"Value"},
