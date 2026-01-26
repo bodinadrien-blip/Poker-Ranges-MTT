@@ -159,6 +159,19 @@ button:active{transform:scale(.98)}
   pointer-events:auto;
   z-index:10;
 }
+
+.coach-on .cell{
+  pointer-events:none;
+  filter:brightness(.9);
+}
+
+.coach-banner{
+  text-align:center;
+  font-size:12px;
+  color:#ff9800;
+  margin-bottom:6px;
+  font-weight:700;
+}
 </style>
 </head>
 
@@ -207,6 +220,7 @@ button:active{transform:scale(.98)}
 
 <select id="stack"></select>
 
+<button id="coachToggle">🧠 Mode coach : OFF</button>
 <button onclick="resetRange()">🔄 RESET RANGE</button>
 <button onclick="exportImage()">📤 EXPORT IMAGE</button>
 
@@ -237,10 +251,11 @@ const stackOptionsByPosition = {
       {label:"45bb",mult:"x3"}
     ],
     call:[
-      {label:"Standard",mult:"2bb x3 possible cher"}],
+      {label:"Standard",mult:"2bb x3 possible cher"}
+    ],
     bet3:[
       {label:"12–30bb",mult:"Deep stack"},
-      {label:"30-50bb",mult:"3bet short"},
+      {label:"30–50bb",mult:"3bet short"},
       {label:"12–30bb",mult:"3bet light"}
     ],
     allin:[
@@ -256,10 +271,11 @@ const stackOptionsByPosition = {
       {label:"45bb",mult:"x3"}
     ],
     call:[
-      {label:"Standard",mult:"2bb x3 possible cher"}],
+      {label:"Standard",mult:"2bb x3 possible cher"}
+    ],
     bet3:[
       {label:"12–30bb",mult:"Deep stack"},
-      {label:"30-50bb",mult:"3bet short"},
+      {label:"30–50bb",mult:"3bet short"},
       {label:"12–30bb",mult:"3bet light"}
     ],
     allin:[
@@ -275,10 +291,11 @@ const stackOptionsByPosition = {
       {label:"45bb",mult:"x3"}
     ],
     call:[
-      {label:"Standard",mult:"2bb"}],
+      {label:"Standard",mult:"2bb"}
+    ],
     bet3:[
       {label:"12–30bb",mult:"Deep stack"},
-      {label:"30-50bb",mult:"3bet short"},
+      {label:"30–50bb",mult:"3bet short"},
       {label:"12–30bb",mult:"3bet light"}
     ],
     allin:[
@@ -294,10 +311,11 @@ const stackOptionsByPosition = {
       {label:"45bb",mult:"x3"}
     ],
     call:[
-      {label:"Standard",mult:"2bb"}],
+      {label:"Standard",mult:"2bb"}
+    ],
     bet3:[
       {label:"12–30bb",mult:"Deep stack"},
-      {label:"30-50bb",mult:"3bet short"},
+      {label:"30–50bb",mult:"3bet short"},
       {label:"12–30bb",mult:"3bet light"}
     ],
     allin:[
@@ -317,10 +335,10 @@ const stackOptionsByPosition = {
       {label:"Si pas relance",mult:"relance +2bb"},
       {label:"Limp / relance",mult:"1bb"},
       {label:"+30bb Limp / relance",mult:"1bb"}
-  ],
+    ],
     bet3:[
       {label:"12–30bb",mult:"Deep stack"},
-      {label:"30-50bb",mult:"3bet short"},
+      {label:"30–50bb",mult:"3bet short"},
       {label:"12–30bb",mult:"3bet light"}
     ],
     allin:[
@@ -336,18 +354,18 @@ const stackOptionsByPosition = {
       {label:"F mtt",mult:"x2.1"}
     ],
     call:[
-      {label:"Call",mult:"2bb"}
-      {label:"Rase",mult:"min 2bb voir x3 ou tapis si 2 joueurs suivent"}
+      {label:"Call",mult:"2bb"},
+      {label:"Rase",mult:"min 2bb → x3 / tapis si multiway"}
     ],
     bet3:[
       {label:"12–30bb",mult:"Deep stack"},
-      {label:"30-50bb",mult:"3bet short"},
+      {label:"30–50bb",mult:"3bet short"},
       {label:"12–30bb",mult:"3bet light"}
     ],
     allin:[
-      {label:"si relance ac +25bb",mult:"call ou rase"}
-      {label:"-12bb"}
-      {label:"-8bb"}
+      {label:"si relance ac +25bb",mult:"call ou rase"},
+      {label:"≤12bb"},
+      {label:"≤8bb"}
     ],
     fold:[{label:"—"}]
   }
@@ -417,11 +435,13 @@ function build(){
         d.className="cell "+(saved[h]||"fold");
         d.textContent=h;
         d.onclick=()=>{
-          d.className="cell "+action.value;
-          saved[h]=action.value;
-          save(saved);
-          updatePercent();
-        };
+  if(coachMode) return; // ⛔ lecture seule
+
+  d.className="cell "+action.value;
+  saved[h]=action.value;
+  save(saved);
+  updatePercent();
+};
         grid.appendChild(d);
       });
     });
@@ -491,6 +511,18 @@ document.body.onclick = ()=>{
   document.querySelectorAll(".tooltip").forEach(t=>t.style.display="none");
 };
 
+let coachMode = false;
+const coachBtn = document.getElementById("coachToggle");
+
+coachBtn.onclick = ()=>{
+  coachMode = !coachMode;
+
+  document.body.classList.toggle("coach-on", coachMode);
+
+  coachBtn.textContent = coachMode
+    ? "🧠 Mode coach : ON"
+    : "🧠 Mode coach : OFF";
+};
 </script>
 </body>
 </html>
