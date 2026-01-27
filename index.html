@@ -112,6 +112,15 @@ select,button{
   <option value="allin">All-in</option>
 </select>
 
+<select id="position">
+  <option value="utg">UTG</option>
+  <option value="hj">HJ</option>
+  <option value="co">CO</option>
+  <option value="btn">BTN</option>
+  <option value="sb">SB</option>
+  <option value="bb">BB</option>
+</select>
+
 <!-- OPTIONS -->
 <select id="stack"></select>
 
@@ -169,7 +178,7 @@ function updateStack(){
 }
 
 function key(){
-  return `range_${action.value}_${stack.value}`;
+  return `range_${action.value}_${position.value}_${stack.value}`;
 }
 
 function build(){
@@ -180,7 +189,7 @@ function build(){
   ranks.forEach((r,i)=>ranks.forEach((c,j)=>{
     const h=i===j?r+r:i<j?r+c+"s":c+r+"o";
     const d=document.createElement("div");
-    const pos=POSITIONS[posIndex%6];
+    const pos = position.value;
 
     d.className="cell "+(saved[h]||"fold");
     d.dataset.pos=pos;
@@ -192,8 +201,8 @@ function build(){
         delete saved[h];
         d.className="cell fold";
       }else{
-        saved[h]=pos;
-        d.className="cell "+pos;
+        saved[h] = {pos, action: action.value};
+d.className = "cell " + pos;
       }
       localStorage.setItem(key(),JSON.stringify(saved));
       updatePercent();
