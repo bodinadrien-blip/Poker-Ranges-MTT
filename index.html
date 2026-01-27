@@ -56,21 +56,29 @@ select,button{
   color:var(--text);
   font-size:15px;
   font-weight:600;
-  letter-spacing:.4px;
 }
 
-select option{font-weight:600}
+select{
+  letter-spacing:.5px;
+}
+
+select option{
+  font-weight:600;
+}
 
 button{
   background:linear-gradient(135deg,#1f2937,#111827);
 }
-button:active{transform:scale(.98)}
+
+.buttons{
+  display:flex;
+  gap:8px;
+}
 
 .grid{
   display:grid;
   grid-template-columns:repeat(13,1fr);
   gap:2px;
-  width:100%;
 }
 
 .cell{
@@ -78,10 +86,9 @@ button:active{transform:scale(.98)}
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:clamp(13px,3.4vw,24px);
+  font-size:clamp(14px,3.5vw,26px);
   border-radius:8px;
   font-weight:700;
-  letter-spacing:.4px;
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);
 }
 
@@ -103,84 +110,8 @@ button:active{transform:scale(.98)}
 
 #percent{
   text-align:center;
-  font-weight:800;
-  margin:8px 0;
-}
-
-/* Tooltip */
-.info{
-  font-size:13px;
-  color:var(--muted);
-  margin:-4px 0 10px;
-  position:relative;
-}
-.tooltip{
-  display:none;
-  background:var(--panel);
-  border:1px solid var(--border);
-  border-radius:8px;
-  padding:10px;
-  margin-top:6px;
-  font-size:12px;
-}
-.info-row{
-  display:flex;
-  gap:14px;
-  align-items:center;
-  margin:-4px 0 10px;
-  flex-wrap:wrap; /* safe iPhone */
-}
-
-.info{
-  font-size:13px;
-  color:var(--muted);
-  position:relative;
-  user-select:none;
-}
-
-.info .tooltip{
-  display:none;
-  position:absolute;
-  top:26px;
-  left:0;
-  background:var(--panel);
-  border:1px solid var(--border);
-  border-radius:8px;
-  padding:10px;
-  font-size:12px;
-  line-height:1.4;
-  box-shadow:0 8px 30px rgba(0,0,0,.8);
-  z-index:9999;          /* 🔥 CRITIQUE */
-  min-width:180px;
-}
-
-.info{
-  position:relative;
-  pointer-events:auto;
-  z-index:10;
-}
-
-.coach-on .cell{
-  pointer-events:none;
-  filter:brightness(.9);
-}
-
-.coach-banner{
-  text-align:center;
-  font-size:12px;
-  color:#ff9800;
-  margin-bottom:6px;
   font-weight:700;
-}
-
-.actions{
-  display:flex;
-  gap:8px;
-}
-
-.actions button{
-  background:linear-gradient(135deg,#1f2937,#0f172a);
-  border:1px solid #1f2937;
+  margin:8px 0;
 }
 </style>
 </head>
@@ -203,46 +134,11 @@ button:active{transform:scale(.98)}
   <option value="fold">Fold</option>
 </select>
 
-<div class="info-row">
+<select id="stack"></select>
 
-  <div id="openInfo" class="info">
-    ℹ️ Open size
-    <div class="tooltip">
-      <strong>Open size</strong><br>
-      x2 = standard<br>
-      x2.5 = pression<br>
-      x3 = iso / punition
-    </div>
-  </div>
-
-  <div id="sbInfo" class="info">
-    ℹ️ SB vs BB
-    <div class="tooltip">
-      <strong>SB vs BB</strong><br>
-      x3.5 = Début tournoi<br>
-      x2.5 = Milieu tournoi<br>
-      x2.1 = Fin tournoi
-    </div>
-  </div>
-
-</div>
-</div>
-
-<select id="stack">
-  o.value = `${opt.label}_${opt.mult || ""}`;
-o.textContent = opt.mult
-  ? `${opt.label} (${opt.mult})`
-  : opt.label;
-</select>
-
-<div class="actions">
-  <button id="coachToggle">🧠 Mode coach : OFF</button>
-<button onclick="resetRange()">🔄 RESET RANGE</button>
-</div>
-<div class="actions">
+<div class="buttons">
+  <button onclick="resetRange()">🔄 Reset</button>
   <button onclick="exportImage()">📤 Image</button>
-  <button onclick="exportJSON()">💾 JSON</button>
-  <button onclick="importJSON()">📂 Import</button>
 </div>
 
 <div id="percent">Range : 0%</div>
@@ -261,222 +157,104 @@ o.textContent = opt.mult
 <script>
 const ranks=["A","K","Q","J","T","9","8","7","6","5","4","3","2"];
 const grid=document.getElementById("grid");
-const percent=document.getElementById("percent");
-const openInfo=document.getElementById("openInfo");
 
 const stackOptionsByPosition = {
   UTG:{
-    open:[
-      {label:"20bb/30bb/45bb"},
-    ],
-    call:[
-      {label:"Standard",mult:"2bb x3 possible cher"}
-    ],
-    bet3:[
-      {label:"12–30bb",mult:"Deep stack"},
-      {label:"30–50bb",mult:"3bet short"},
-      {label:"12–30bb",mult:"3bet light"}
-    ],
-    allin:[
-      {label:"si relance ac +25bb",mult:"call ou rase"}
-    ],
+    open:[{label:"20bb",mult:"x2"},{label:"30bb",mult:"x2.5"},{label:"45bb",mult:"x3"}],
+    call:[{label:"Standard"}],
+    bet3:[{label:"12–30bb",mult:"Value"},{label:"Light"}],
+    allin:[{label:"≤8bb"}],
     fold:[{label:"—"}]
   },
-
   HJ:{
-    open:[
-      {label:"20bb/30bb/45bb"},
-    ],
-    call:[
-      {label:"Standard",mult:"2bb x3 possible cher"}
-    ],
-    bet3:[
-      {label:"12–30bb",mult:"Deep stack"},
-      {label:"30–50bb",mult:"3bet short"},
-      {label:"12–30bb",mult:"3bet light"}
-    ],
-    allin:[
-      {label:"si relance ac +25bb",mult:"call ou rase"}
-    ],
+    open:[{label:"20bb",mult:"x2"},{label:"30bb",mult:"x2.5"},{label:"45bb",mult:"x3"}],
+    call:[{label:"Standard"}],
+    bet3:[{label:"12–30bb",mult:"Mix"}],
+    allin:[{label:"≤10bb"}],
     fold:[{label:"—"}]
   },
-
   CO:{
-    open:[
-      {label:"20bb/30bb/45bb"},
-    ],
-    call:[
-      {label:"Standard",mult:"2bb"}
-    ],
-    bet3:[
-      {label:"12–30bb",mult:"Deep stack"},
-      {label:"30–50bb",mult:"3bet short"},
-      {label:"12–30bb",mult:"3bet light"}
-    ],
-    allin:[
-      {label:"si relance ac +25bb",mult:"call ou rase"}
-    ],
+    open:[{label:"20bb",mult:"x2"},{label:"30bb",mult:"x2.5"},{label:"45bb",mult:"x3"}],
+    call:[{label:"Large"}],
+    bet3:[{label:"Value"},{label:"Light"}],
+    allin:[{label:"≤12bb"}],
     fold:[{label:"—"}]
   },
-
   BTN:{
-    open:[
-      {label:"20bb/30bb/45bb"},
-    ],
-    call:[
-      {label:"Standard",mult:"2bb"}
-    ],
-    bet3:[
-      {label:"12–30bb",mult:"Deep stack"},
-      {label:"30–50bb",mult:"3bet short"},
-      {label:"12–30bb",mult:"3bet light"}
-    ],
-    allin:[
-      {label:"+25bb"}
-    ],
+    open:[{label:"20bb",mult:"x2"},{label:"30bb",mult:"x2.5"},{label:"45bb",mult:"x3"}],
+    call:[{label:"Très large"}],
+    bet3:[{label:"Aggro"},{label:"Light"}],
+    allin:[{label:"≤15bb"}],
     fold:[{label:"—"}]
   },
-
   SB:{
-    open:[
-      {label:"20bb/30bb/45bb"},
-    ],
-    call:[
-      {label:"Si pas relance",mult:"2bb"},
-      {label:"Si pas relance",mult:"relance +2bb"},
-      {label:"Limp / relance",mult:"1bb"},
-      {label:"+30bb Limp / relance",mult:"1bb"}
-    ],
-    bet3:[
-      {label:"12–30bb",mult:"Deep stack"},
-      {label:"30–50bb",mult:"3bet short"},
-      {label:"12–30bb",mult:"3bet light"}
-    ],
-    allin:[
-      {label:"si relance ac +25bb",mult:"call ou rase"}
-    ],
+    open:[{label:"Début",mult:"x3.5"},{label:"Milieu",mult:"x2.5"},{label:"Fin",mult:"x2.1"}],
+    call:[{label:"Rare"}],
+    bet3:[{label:"Polarisé"}],
+    allin:[{label:"≤12bb"}],
     fold:[{label:"—"}]
   },
-
   BB:{
-    open:[
-      {label:"20bb/30bb/45bb"},
-    ],
-    call:[
-      {label:"Call",mult:"2bb"},
-      {label:"Rase",mult:"min 2bb → x3 / tapis si multiway"}
-    ],
-    bet3:[
-      {label:"12–30bb",mult:"Deep stack"},
-      {label:"30–50bb",mult:"3bet short"},
-      {label:"12–30bb",mult:"3bet light"}
-    ],
-    allin:[
-      {label:"si relance ac +25bb",mult:"call ou rase"},
-      {label:"≤12bb"},
-      {label:"≤8bb"}
-    ],
+    open:[{label:"Début",mult:"x3.5"},{label:"Milieu",mult:"x2.5"},{label:"Fin",mult:"x2.1"}],
+    call:[{label:"Très large"}],
+    bet3:[{label:"Value"},{label:"Light"}],
+    allin:[{label:"≤15bb"}],
     fold:[{label:"—"}]
   }
 };
 
-/* ---------- IndexedDB ---------- */
-let db;
-const DB_NAME="PokerRangesDB";
-const STORE="ranges";
-
-const req=indexedDB.open(DB_NAME,1);
-req.onupgradeneeded=e=>{
-  db=e.target.result;
-  db.createObjectStore(STORE);
-};
-req.onsuccess=e=>{
-  db=e.target.result;
-  updateStackOptions();
-  build();
-};
-
-function key(){
-  return `range_${spot.value}_${action.value}_${stack.value}`;
-}
-
-function save(data){
-  const tx=db.transaction(STORE,"readwrite");
-  tx.objectStore(STORE).put(data,key());
-}
-
-function load(cb){
-  const tx=db.transaction(STORE,"readonly");
-  const r=tx.objectStore(STORE).get(key());
-  r.onsuccess=()=>cb(r.result||{});
-}
-
 function updateStackOptions(){
   stack.innerHTML="";
-
-  const pos = spot.value;
-  const act = action.value;
-
-  const options = stackOptionsByPosition[pos][act] || [];
-
-  options.forEach(o=>{
+  const opts = stackOptionsByPosition[spot.value][action.value];
+  opts.forEach(o=>{
     const opt=document.createElement("option");
-    opt.value=o.label;
-    opt.innerHTML=o.mult
-      ? `${o.label} <span style="opacity:.6">(${o.mult})</span>`
-      : o.label;
+    opt.value = `${o.label}_${o.mult||""}`;
+    opt.textContent = o.mult ? `${o.label} (${o.mult})` : o.label;
     stack.appendChild(opt);
   });
 }
 
 function key(){
-  return `range_${spot.value}_${stack.value}`;
+  return `range_${spot.value}_${action.value}_${stack.value}`;
 }
 
 function build(){
-  if(!db) return;
   grid.innerHTML="";
-  load(saved=>{
-    ranks.forEach((r,i)=>{
-      ranks.forEach((c,j)=>{
-        const h=i==j?r+r:i<j?r+c+"s":c+r+"o";
-        const d=document.createElement("div");
-        d.className="cell "+(saved[h]||"fold");
-        d.textContent=h;
-        d.onclick=()=>{
-  if(coachMode) return;
+  const saved=JSON.parse(localStorage.getItem(key())||"{}");
 
-  const current = saved[h] || "fold";
-
-  if(current === action.value){
-    // 🔁 second clic = retirer la main
-    d.className = "cell fold";
-    delete saved[h];
-  }else{
-    // 🎨 appliquer l’action
-    d.className = "cell " + action.value;
-    saved[h] = action.value;
-  }
-
-  save(saved);
-  updatePercent();
-};
-        grid.appendChild(d);
-      });
+  ranks.forEach((r,i)=>{
+    ranks.forEach((c,j)=>{
+      const h=i===j?r+r:i<j?r+c+"s":c+r+"o";
+      const d=document.createElement("div");
+      d.className="cell "+(saved[h]||"fold");
+      d.textContent=h;
+      d.onclick=()=>{
+        if(saved[h]===action.value){
+          delete saved[h];
+          d.className="cell fold";
+        }else{
+          saved[h]=action.value;
+          d.className="cell "+action.value;
+        }
+        localStorage.setItem(key(),JSON.stringify(saved));
+        updatePercent();
+      };
+      grid.appendChild(d);
     });
-    updatePercent();
   });
+  updatePercent();
 }
 
 function updatePercent(){
-  const a=[...document.querySelectorAll(".cell")].filter(c=>!c.classList.contains("fold")).length;
-  percent.textContent=`${spot.value} · ${action.value} · ${stack.value} : ${(a/169*100).toFixed(1)}%`;
+  const a=[...document.querySelectorAll('.cell')]
+    .filter(c=>!c.classList.contains('fold')).length;
+  percent.textContent=
+    `${spot.value} · ${action.value} · ${stack.options[stack.selectedIndex]?.text} : ${(a/169*100).toFixed(1)}%`;
 }
 
 function resetRange(){
-  if(confirm("Effacer cette range ?")){
-    const tx=db.transaction(STORE,"readwrite");
-    tx.objectStore(STORE).delete(key());
+  if(confirm("Effacer cette range uniquement ?")){
+    localStorage.removeItem(key());
     build();
   }
 }
@@ -484,120 +262,23 @@ function resetRange(){
 function exportImage(){
   html2canvas(grid).then(c=>{
     const a=document.createElement("a");
-    a.download=`${spot.value}_${action.value}_${stack.value}.png`;
+    a.download=`${key()}.png`;
     a.href=c.toDataURL();
     a.click();
   });
 }
 
-/* UI */
-openInfo.onclick=()=>{
-  const t=openInfo.querySelector(".tooltip");
-  t.style.display=t.style.display==="block"?"none":"block";
-};
-
-action.onchange=()=>{
-  updateStackOptions();
-  openInfo.style.display=action.value==="open"?"block":"none";
-  build();
-};
-
-spot.onchange = ()=>{
+spot.onchange=action.onchange=()=>{
   updateStackOptions();
   build();
 };
+stack.onchange=build;
 
-action.onchange = ()=>{
-  updateStackOptions();
-  openInfo.style.display = action.value==="open" ? "block" : "none";
-  build();
-};
+updateStackOptions();
+build();
 
-document.querySelectorAll(".info").forEach(el=>{
-  el.onclick = e=>{
-    e.stopPropagation();
-
-    document.querySelectorAll(".tooltip").forEach(t=>{
-      if(t !== el.querySelector(".tooltip")) t.style.display="none";
-    });
-
-    const t = el.querySelector(".tooltip");
-    t.style.display = t.style.display==="block" ? "none" : "block";
-  };
-});
-
-document.body.onclick = ()=>{
-  document.querySelectorAll(".tooltip").forEach(t=>t.style.display="none");
-};
-
-let coachMode = false;
-const coachBtn = document.getElementById("coachToggle");
-
-coachBtn.onclick = ()=>{
-  coachMode = !coachMode;
-
-  document.body.classList.toggle("coach-on", coachMode);
-
-  coachBtn.textContent = coachMode
-    ? "🧠 Mode coach : ON"
-    : "🧠 Mode coach : OFF";
-};
-
-function exportJSON(){
-  const tx = db.transaction("ranges","readonly");
-  const store = tx.objectStore("ranges");
-  const req = store.getAll();
-  const keysReq = store.getAllKeys();
-
-  Promise.all([
-    new Promise(res=>req.onsuccess=()=>res(req.result)),
-    new Promise(res=>keysReq.onsuccess=()=>res(keysReq.result))
-  ]).then(([values,keys])=>{
-    const data = {};
-    keys.forEach((k,i)=>data[k]=values[i]);
-
-    const blob = new Blob(
-      [JSON.stringify(data,null,2)],
-      {type:"application/json"}
-    );
-
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "poker_ranges_backup.json";
-    a.click();
-  });
-}
-
-function importJSON(){
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = "application/json";
-
-  input.onchange = e=>{
-    const file = e.target.files[0];
-    if(!file) return;
-
-    const reader = new FileReader();
-    reader.onload = ()=>{
-      try{
-        const data = JSON.parse(reader.result);
-        const tx = db.transaction("ranges","readwrite");
-        const store = tx.objectStore("ranges");
-
-        Object.keys(data).forEach(k=>{
-          store.put(data[k],k);
-        });
-
-        alert("✅ Ranges importées avec succès");
-        build();
-      }catch(err){
-        alert("❌ Fichier invalide");
-      }
-    };
-    reader.readAsText(file);
-  };
-
-  input.click();
+if('serviceWorker'in navigator){
+  navigator.serviceWorker.register('sw.js');
 }
 </script>
 </body>
