@@ -121,8 +121,9 @@ select,button{
 
 <select id="action">
   <option value="open">Open</option>
-  <option value="call">Call</option>
-  <option value="bet3">3bet</option>
+  <option value="call">Open 3bet</option>
+  <option value="bet3">Call</option>
+  <option value="bet3">Rase</option>
   <option value="allin">All-in</option>
   <option value="fold">Fold</option>
 </select>
@@ -143,8 +144,9 @@ select,button{
 
 <div class="legend">
   <div><div class="box open"></div>Open</div>
+  <div><div class="box call"></div>Open 3bet</div>
   <div><div class="box call"></div>Call</div>
-  <div><div class="box bet3"></div>3bet</div>
+  <div><div class="box bet3"></div>Rase</div>
   <div><div class="box allin"></div>All-in</div>
   <div><div class="box fold"></div>Fold</div>
 </div>
@@ -160,7 +162,7 @@ const percent=document.getElementById("percent");
 let coachMode=false;
 
 const stackOptions={
-  UTG:{open:["20bb x2","30bb x2.5","45bb x3"],call:["Standard"],bet3:["Value","Light"],allin:["≤8bb"],fold:["—"]},
+  UTG:{open:["Début mtt","Milieu mtt","Fin mtt"],open 3bet:["12>30bb","30>50bb","500bb+"],call:["2bb"],rase:["2bb+"],allin:["12bb","8bb"]},
   HJ:{open:["20bb x2","30bb x2.5","45bb x3"],call:["Standard"],bet3:["Mix"],allin:["≤10bb"],fold:["—"]},
   CO:{open:["20bb x2","30bb x2.5","45bb x3"],call:["Large"],bet3:["Value","Light"],allin:["≤12bb"],fold:["—"]},
   BTN:{open:["20bb x2","30bb x2.5","45bb x3"],call:["Très large"],bet3:["Aggro","Light"],allin:["≤15bb"],fold:["—"]},
