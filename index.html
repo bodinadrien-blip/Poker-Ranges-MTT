@@ -64,6 +64,18 @@ select,button{
   gap:2px;
 }
 
+.grid-wrapper{
+  overflow-x:auto;
+  padding-bottom:10px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(13, minmax(36px,1fr));
+  gap:2px;
+  min-width:520px; /* empêche l’écrasement */
+}
+
 .cell{
   aspect-ratio:1/1;
   display:flex;
@@ -203,7 +215,8 @@ select,button{
   <div><div class="box bb"></div>BB</div>
 </div>
 
-<div id="grid" class="grid"></div>
+<div class="grid-wrapper">
+  <div id="grid" class="grid"></div>
 </div>
 
 <script>
@@ -273,10 +286,18 @@ coachToggle.onclick=()=>{
 };
 
 function exportImage(){
-  html2canvas(grid).then(c=>{
+  const wrapper = document.querySelector('.grid-wrapper');
+
+  const fileName = [
+    action.value.toUpperCase(),
+    position.value.toUpperCase(),
+    stack.value.replace(/\s+/g,'-')
+  ].join("_");
+
+  html2canvas(wrapper, { scale: 2 }).then(c=>{
     const a=document.createElement("a");
-    a.href=c.toDataURL();
-    a.download=rangeKey()+".png";
+    a.href=c.toDataURL("image/png");
+    a.download=fileName + ".png";
     a.click();
   });
 }
