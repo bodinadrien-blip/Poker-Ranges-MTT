@@ -61,7 +61,6 @@ select,button{
 select{
   letter-spacing:.5px;
 }
-
 select option{
   font-weight:600;
 }
@@ -90,6 +89,7 @@ button{
   border-radius:8px;
   font-weight:700;
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);
+  user-select:none;
 }
 
 .open{background:linear-gradient(135deg,#1e824c,var(--open))}
@@ -137,8 +137,13 @@ button{
 <select id="stack"></select>
 
 <div class="buttons">
-  <button onclick="resetRange()">🔄 Reset</button>
+  <button onclick="toggleCoach()">🎓 Coach</button>
   <button onclick="exportImage()">📤 Image</button>
+</div>
+
+<div class="buttons">
+  <button onclick="exportJSON()">💾 Export JSON</button>
+  <button onclick="importJSON()">📂 Import JSON</button>
 </div>
 
 <div id="percent">Range : 0%</div>
@@ -157,59 +162,29 @@ button{
 <script>
 const ranks=["A","K","Q","J","T","9","8","7","6","5","4","3","2"];
 const grid=document.getElementById("grid");
+let coachMode=false;
 
-const stackOptionsByPosition = {
-  UTG:{
-    open:[{label:"20bb",mult:"x2"},{label:"30bb",mult:"x2.5"},{label:"45bb",mult:"x3"}],
-    call:[{label:"Standard"}],
-    bet3:[{label:"12–30bb",mult:"Value"},{label:"Light"}],
-    allin:[{label:"≤8bb"}],
-    fold:[{label:"—"}]
-  },
-  HJ:{
-    open:[{label:"20bb",mult:"x2"},{label:"30bb",mult:"x2.5"},{label:"45bb",mult:"x3"}],
-    call:[{label:"Standard"}],
-    bet3:[{label:"12–30bb",mult:"Mix"}],
-    allin:[{label:"≤10bb"}],
-    fold:[{label:"—"}]
-  },
-  CO:{
-    open:[{label:"20bb",mult:"x2"},{label:"30bb",mult:"x2.5"},{label:"45bb",mult:"x3"}],
-    call:[{label:"Large"}],
-    bet3:[{label:"Value"},{label:"Light"}],
-    allin:[{label:"≤12bb"}],
-    fold:[{label:"—"}]
-  },
-  BTN:{
-    open:[{label:"20bb",mult:"x2"},{label:"30bb",mult:"x2.5"},{label:"45bb",mult:"x3"}],
-    call:[{label:"Très large"}],
-    bet3:[{label:"Aggro"},{label:"Light"}],
-    allin:[{label:"≤15bb"}],
-    fold:[{label:"—"}]
-  },
-  SB:{
-    open:[{label:"Début",mult:"x3.5"},{label:"Milieu",mult:"x2.5"},{label:"Fin",mult:"x2.1"}],
-    call:[{label:"Rare"}],
-    bet3:[{label:"Polarisé"}],
-    allin:[{label:"≤12bb"}],
-    fold:[{label:"—"}]
-  },
-  BB:{
-    open:[{label:"Début",mult:"x3.5"},{label:"Milieu",mult:"x2.5"},{label:"Fin",mult:"x2.1"}],
-    call:[{label:"Très large"}],
-    bet3:[{label:"Value"},{label:"Light"}],
-    allin:[{label:"≤15bb"}],
-    fold:[{label:"—"}]
-  }
+const stackOptionsByPosition={
+  UTG:{open:[{l:"20bb",m:"x2"},{l:"30bb",m:"x2.5"},{l:"45bb",m:"x3"}],
+       call:[{l:"Standard"}],bet3:[{l:"Value"},{l:"Light"}],allin:[{l:"≤8bb"}],fold:[{l:"—"}]},
+  HJ:{open:[{l:"20bb",m:"x2"},{l:"30bb",m:"x2.5"},{l:"45bb",m:"x3"}],
+      call:[{l:"Standard"}],bet3:[{l:"Mix"}],allin:[{l:"≤10bb"}],fold:[{l:"—"}]},
+  CO:{open:[{l:"20bb",m:"x2"},{l:"30bb",m:"x2.5"},{l:"45bb",m:"x3"}],
+      call:[{l:"Large"}],bet3:[{l:"Value"},{l:"Light"}],allin:[{l:"≤12bb"}],fold:[{l:"—"}]},
+  BTN:{open:[{l:"20bb",m:"x2"},{l:"30bb",m:"x2.5"},{l:"45bb",m:"x3"}],
+       call:[{l:"Très large"}],bet3:[{l:"Aggro"},{l:"Light"}],allin:[{l:"≤15bb"}],fold:[{l:"—"}]},
+  SB:{open:[{l:"Début",m:"x3.5"},{l:"Milieu",m:"x2.5"},{l:"Fin",m:"x2.1"}],
+      call:[{l:"Rare"}],bet3:[{l:"Polarisé"}],allin:[{l:"≤12bb"}],fold:[{l:"—"}]},
+  BB:{open:[{l:"Début",m:"x3.5"},{l:"Milieu",m:"x2.5"},{l:"Fin",m:"x2.1"}],
+      call:[{l:"Très large"}],bet3:[{l:"Value"},{l:"Light"}],allin:[{l:"≤15bb"}],fold:[{l:"—"}]}
 };
 
 function updateStackOptions(){
   stack.innerHTML="";
-  const opts = stackOptionsByPosition[spot.value][action.value];
-  opts.forEach(o=>{
+  stackOptionsByPosition[spot.value][action.value].forEach(o=>{
     const opt=document.createElement("option");
-    opt.value = `${o.label}_${o.mult||""}`;
-    opt.textContent = o.mult ? `${o.label} (${o.mult})` : o.label;
+    opt.value=`${o.l}_${o.m||""}`;
+    opt.textContent=o.m?`${o.l} (${o.m})`:o.l;
     stack.appendChild(opt);
   });
 }
@@ -222,41 +197,36 @@ function build(){
   grid.innerHTML="";
   const saved=JSON.parse(localStorage.getItem(key())||"{}");
 
-  ranks.forEach((r,i)=>{
-    ranks.forEach((c,j)=>{
-      const h=i===j?r+r:i<j?r+c+"s":c+r+"o";
-      const d=document.createElement("div");
-      d.className="cell "+(saved[h]||"fold");
-      d.textContent=h;
-      d.onclick=()=>{
-        if(saved[h]===action.value){
-          delete saved[h];
-          d.className="cell fold";
-        }else{
-          saved[h]=action.value;
-          d.className="cell "+action.value;
-        }
-        localStorage.setItem(key(),JSON.stringify(saved));
-        updatePercent();
-      };
-      grid.appendChild(d);
-    });
-  });
+  ranks.forEach((r,i)=>ranks.forEach((c,j)=>{
+    const h=i===j?r+r:i<j?r+c+"s":c+r+"o";
+    const d=document.createElement("div");
+    d.className="cell "+(saved[h]||"fold");
+    d.textContent=h;
+    d.onclick=()=>{
+      if(coachMode) return;
+      if(saved[h]===action.value){
+        delete saved[h];
+        d.className="cell fold";
+      }else{
+        saved[h]=action.value;
+        d.className="cell "+action.value;
+      }
+      localStorage.setItem(key(),JSON.stringify(saved));
+      updatePercent();
+    };
+    grid.appendChild(d);
+  }));
   updatePercent();
 }
 
 function updatePercent(){
-  const a=[...document.querySelectorAll('.cell')]
-    .filter(c=>!c.classList.contains('fold')).length;
-  percent.textContent=
-    `${spot.value} · ${action.value} · ${stack.options[stack.selectedIndex]?.text} : ${(a/169*100).toFixed(1)}%`;
+  const a=[...document.querySelectorAll('.cell')].filter(c=>!c.classList.contains('fold')).length;
+  percent.textContent=`${spot.value} · ${action.value} · ${stack.options[stack.selectedIndex]?.text} : ${(a/169*100).toFixed(1)}%`;
 }
 
-function resetRange(){
-  if(confirm("Effacer cette range uniquement ?")){
-    localStorage.removeItem(key());
-    build();
-  }
+function toggleCoach(){
+  coachMode=!coachMode;
+  alert(coachMode?"🎓 Mode coach activé (lecture seule)":"🎓 Mode coach désactivé");
 }
 
 function exportImage(){
@@ -268,10 +238,35 @@ function exportImage(){
   });
 }
 
-spot.onchange=action.onchange=()=>{
-  updateStackOptions();
-  build();
-};
+function exportJSON(){
+  const data={};
+  Object.keys(localStorage).filter(k=>k.startsWith("range_"))
+    .forEach(k=>data[k]=JSON.parse(localStorage.getItem(k)));
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="poker_ranges_backup.json";
+  a.click();
+}
+
+function importJSON(){
+  const input=document.createElement("input");
+  input.type="file";
+  input.accept="application/json";
+  input.onchange=e=>{
+    const r=new FileReader();
+    r.onload=()=>{
+      const d=JSON.parse(r.result);
+      Object.keys(d).forEach(k=>localStorage.setItem(k,JSON.stringify(d[k])));
+      build();
+      alert("✅ Ranges importées");
+    };
+    r.readAsText(e.target.files[0]);
+  };
+  input.click();
+}
+
+spot.onchange=action.onchange=()=>{updateStackOptions();build();};
 stack.onchange=build;
 
 updateStackOptions();
