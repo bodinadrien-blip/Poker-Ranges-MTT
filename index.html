@@ -168,6 +168,29 @@ select,button{
 }
 
 .hidden{display:none}
+
+.export-zone{
+  background:#07090c;
+  padding:12px;
+  border-radius:12px;
+}
+
+.export-notes{
+  font-size:12px;
+  line-height:1.4;
+  color:#d0d6e0;
+  background:#0e1220;
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:8px;
+  margin-bottom:10px;
+  white-space:pre-wrap;
+}
+
+@media (min-width:768px){
+  .export-notes{font-size:13px}
+}
+  
 </style>
 </head>
 
@@ -225,9 +248,26 @@ select,button{
   <div><div class="box bb"></div>BB</div>
 </div>
 
-<div class="grid-wrapper">
+<div class="grid-wrapper export-zone">
+
+  <!-- LÉGENDE -->
+  <div class="legend">
+    <div><div class="box utg"></div>UTG</div>
+    <div><div class="box hj"></div>HJ</div>
+    <div><div class="box co"></div>CO</div>
+    <div><div class="box btn"></div>BTN</div>
+    <div><div class="box sb"></div>SB</div>
+    <div><div class="box bb"></div>BB</div>
+  </div>
+
+  <div id="exportNotes" class="export-notes hidden"></div>
+
+  
+  <!-- GRID -->
   <div id="grid" class="grid"></div>
+
 </div>
+
 
 <script>
 /* JS IDENTIQUE À LA VERSION PRÉCÉDENTE – NON MODIFIÉ */
@@ -296,21 +336,37 @@ coachToggle.onclick=()=>{
 };
 
 function exportImage(){
-  const wrapper = document.querySelector('.grid-wrapper');
+  const wrapper = document.querySelector('.export-zone');
+  const notesBox = document.getElementById("exportNotes");
+
+  const noteKey = `info_${action.value}`;
+  const note = localStorage.getItem(noteKey);
+
+  if(note){
+    notesBox.textContent = "📝 NOTES — " + action.value.toUpperCase() + "\n" + note;
+    notesBox.classList.remove("hidden");
+  }
 
   const fileName = [
     action.value.toUpperCase(),
-    position.value.toUpperCase(),
     stack.value.replace(/\s+/g,'-')
   ].join("_");
 
-  html2canvas(wrapper, { scale: 2 }).then(c=>{
+  html2canvas(wrapper, {
+    scale:2,
+    backgroundColor:"#07090c"
+  }).then(c=>{
     const a=document.createElement("a");
     a.href=c.toDataURL("image/png");
     a.download=fileName + ".png";
     a.click();
+
+    // 🔁 on cache à nouveau après export
+    notesBox.classList.add("hidden");
+    notesBox.textContent="";
   });
 }
+
 
 
 
