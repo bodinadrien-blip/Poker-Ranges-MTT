@@ -66,14 +66,15 @@ select,button{
 
 .grid-wrapper{
   overflow-x:auto;
+  width:100%;
   padding-bottom:10px;
 }
 
 .grid{
   display:grid;
-  grid-template-columns:repeat(13, minmax(36px,1fr));
+  grid-template-columns:repeat(13, 42px);
   gap:2px;
-  min-width:520px; /* empêche l’écrasement */
+  width:calc(13 * 42px + 24px);
 }
 
 .cell{
