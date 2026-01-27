@@ -16,7 +16,6 @@
 
 <style>
 :root{
-  --bg:#0b0d10;
   --panel:#141820;
   --border:#1f2633;
   --open:#2ecc71;
@@ -58,17 +57,6 @@ select,button{
   font-weight:600;
 }
 
-select{
-  letter-spacing:.5px;
-}
-select option{
-  font-weight:600;
-}
-
-button{
-  background:linear-gradient(135deg,#1f2937,#111827);
-}
-
 .buttons{
   display:flex;
   gap:8px;
@@ -88,8 +76,8 @@ button{
   font-size:clamp(14px,3.5vw,26px);
   border-radius:8px;
   font-weight:700;
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);
   user-select:none;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);
 }
 
 .open{background:linear-gradient(135deg,#1e824c,var(--open))}
@@ -118,14 +106,6 @@ button{
   pointer-events:none;
   filter:brightness(.9);
 }
-
-.coach-banner{
-  text-align:center;
-  font-size:12px;
-  color:#ff9800;
-  margin-bottom:6px;
-  font-weight:700;
-}
 </style>
 </head>
 
@@ -150,7 +130,7 @@ button{
 <select id="stack"></select>
 
 <div class="buttons">
-  <button id="coachToggle">🧠 Mode coach : OFF</button
+  <button id="coachToggle">🧠 Coach : OFF</button>
   <button onclick="exportImage()">📤 Image</button>
 </div>
 
@@ -175,30 +155,26 @@ button{
 <script>
 const ranks=["A","K","Q","J","T","9","8","7","6","5","4","3","2"];
 const grid=document.getElementById("grid");
+const stack=document.getElementById("stack");
+const percent=document.getElementById("percent");
 let coachMode=false;
 
-const stackOptionsByPosition={
-  UTG:{open:[{l:"20bb",m:"x2"},{l:"30bb",m:"x2.5"},{l:"45bb",m:"x3"}],
-       call:[{l:"Standard"}],bet3:[{l:"Value"},{l:"Light"}],allin:[{l:"≤8bb"}],fold:[{l:"—"}]},
-  HJ:{open:[{l:"20bb",m:"x2"},{l:"30bb",m:"x2.5"},{l:"45bb",m:"x3"}],
-      call:[{l:"Standard"}],bet3:[{l:"Mix"}],allin:[{l:"≤10bb"}],fold:[{l:"—"}]},
-  CO:{open:[{l:"20bb",m:"x2"},{l:"30bb",m:"x2.5"},{l:"45bb",m:"x3"}],
-      call:[{l:"Large"}],bet3:[{l:"Value"},{l:"Light"}],allin:[{l:"≤12bb"}],fold:[{l:"—"}]},
-  BTN:{open:[{l:"20bb",m:"x2"},{l:"30bb",m:"x2.5"},{l:"45bb",m:"x3"}],
-       call:[{l:"Très large"}],bet3:[{l:"Aggro"},{l:"Light"}],allin:[{l:"≤15bb"}],fold:[{l:"—"}]},
-  SB:{open:[{l:"Début",m:"x3.5"},{l:"Milieu",m:"x2.5"},{l:"Fin",m:"x2.1"}],
-      call:[{l:"Rare"}],bet3:[{l:"Polarisé"}],allin:[{l:"≤12bb"}],fold:[{l:"—"}]},
-  BB:{open:[{l:"Début",m:"x3.5"},{l:"Milieu",m:"x2.5"},{l:"Fin",m:"x2.1"}],
-      call:[{l:"Très large"}],bet3:[{l:"Value"},{l:"Light"}],allin:[{l:"≤15bb"}],fold:[{l:"—"}]}
+const stackOptions={
+  UTG:{open:["20bb x2","30bb x2.5","45bb x3"],call:["Standard"],bet3:["Value","Light"],allin:["≤8bb"],fold:["—"]},
+  HJ:{open:["20bb x2","30bb x2.5","45bb x3"],call:["Standard"],bet3:["Mix"],allin:["≤10bb"],fold:["—"]},
+  CO:{open:["20bb x2","30bb x2.5","45bb x3"],call:["Large"],bet3:["Value","Light"],allin:["≤12bb"],fold:["—"]},
+  BTN:{open:["20bb x2","30bb x2.5","45bb x3"],call:["Très large"],bet3:["Aggro","Light"],allin:["≤15bb"],fold:["—"]},
+  SB:{open:["Début x3.5","Milieu x2.5","Fin x2.1"],call:["Rare"],bet3:["Polarisé"],allin:["≤12bb"],fold:["—"]},
+  BB:{open:["Début x3.5","Milieu x2.5","Fin x2.1"],call:["Très large"],bet3:["Value","Light"],allin:["≤15bb"],fold:["—"]}
 };
 
-function updateStackOptions(){
+function updateStack(){
   stack.innerHTML="";
-  stackOptionsByPosition[spot.value][action.value].forEach(o=>{
-    const opt=document.createElement("option");
-    opt.value=`${o.l}_${o.m||""}`;
-    opt.textContent=o.m?`${o.l} (${o.m})`:o.l;
-    stack.appendChild(opt);
+  stackOptions[spot.value][action.value].forEach(v=>{
+    const o=document.createElement("option");
+    o.value=v;
+    o.textContent=v;
+    stack.appendChild(o);
   });
 }
 
@@ -215,42 +191,42 @@ function build(){
     const d=document.createElement("div");
     d.className="cell "+(saved[h]||"fold");
     d.textContent=h;
-    d.onclick=()=>{
-  if(coachMode) return; // ⛔ lecture seule
 
-  d.className="cell "+action.value;
-  saved[h]=action.value;
-  save(saved);
-  updatePercent();
-};
+    d.onclick=()=>{
+      if(coachMode) return;
+
+      if(saved[h]){
+        delete saved[h];
+        d.className="cell fold";
+      }else{
+        saved[h]=action.value;
+        d.className="cell "+action.value;
+      }
+
+      localStorage.setItem(key(),JSON.stringify(saved));
+      updatePercent();
+    };
     grid.appendChild(d);
   }));
   updatePercent();
 }
 
 function updatePercent(){
-  const a=[...document.querySelectorAll('.cell')].filter(c=>!c.classList.contains('fold')).length;
-  percent.textContent=`${spot.value} · ${action.value} · ${stack.options[stack.selectedIndex]?.text} : ${(a/169*100).toFixed(1)}%`;
+  const a=[...document.querySelectorAll('.cell')].filter(c=>!c.classList.contains("fold")).length;
+  percent.textContent=`${spot.value} · ${action.value} · ${stack.value} : ${(a/169*100).toFixed(1)}%`;
 }
 
-let coachMode = false;
-const coachBtn = document.getElementById("coachToggle");
-
-coachBtn.onclick = ()=>{
-  coachMode = !coachMode;
-
-  document.body.classList.toggle("coach-on", coachMode);
-
-  coachBtn.textContent = coachMode
-    ? "🧠 Mode coach : ON"
-    : "🧠 Mode coach : OFF";
+document.getElementById("coachToggle").onclick=()=>{
+  coachMode=!coachMode;
+  document.body.classList.toggle("coach-on",coachMode);
+  coachToggle.textContent=coachMode?"🧠 Coach : ON":"🧠 Coach : OFF";
 };
 
 function exportImage(){
   html2canvas(grid).then(c=>{
     const a=document.createElement("a");
-    a.download=`${key()}.png`;
     a.href=c.toDataURL();
+    a.download=key()+".png";
     a.click();
   });
 }
@@ -262,36 +238,32 @@ function exportJSON(){
   const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
   const a=document.createElement("a");
   a.href=URL.createObjectURL(blob);
-  a.download="poker_ranges_backup.json";
+  a.download="ranges_backup.json";
   a.click();
 }
 
 function importJSON(){
-  const input=document.createElement("input");
-  input.type="file";
-  input.accept="application/json";
-  input.onchange=e=>{
+  const i=document.createElement("input");
+  i.type="file";
+  i.accept="application/json";
+  i.onchange=e=>{
     const r=new FileReader();
     r.onload=()=>{
       const d=JSON.parse(r.result);
       Object.keys(d).forEach(k=>localStorage.setItem(k,JSON.stringify(d[k])));
       build();
-      alert("✅ Ranges importées");
+      alert("✅ Import terminé");
     };
     r.readAsText(e.target.files[0]);
   };
-  input.click();
+  i.click();
 }
 
-spot.onchange=action.onchange=()=>{updateStackOptions();build();};
+spot.onchange=action.onchange=()=>{updateStack();build();};
 stack.onchange=build;
 
-updateStackOptions();
+updateStack();
 build();
-
-if('serviceWorker'in navigator){
-  navigator.serviceWorker.register('sw.js');
-}
 </script>
 </body>
 </html>
