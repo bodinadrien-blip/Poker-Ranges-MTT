@@ -14,6 +14,7 @@
   --text:#fff;
   --muted:#8a93a3;
 
+  /* Positions colors */
   --utg:#d32f2f;
   --hj:#f57c00;
   --co:#fbc02d;
@@ -86,20 +87,32 @@ select,button{
   display:flex;
   justify-content:space-between;
   font-size:12px;
-  margin:8px 0;
+  margin:8px 0 12px;
   color:var(--muted);
 }
-.legend div{display:flex;align-items:center;gap:4px}
-.box{width:12px;height:12px;border-radius:3px}
+.legend div{
+  display:flex;
+  align-items:center;
+  gap:4px;
+}
+.box{
+  width:12px;
+  height:12px;
+  border-radius:3px;
+}
 
-#percent{text-align:center;font-weight:700;margin:8px 0}
+#percent{
+  text-align:center;
+  font-weight:700;
+  margin:8px 0;
+}
 
 .coach-on .cell{
   pointer-events:none;
   filter:brightness(.9);
 }
 
-/* INFO NOTES */
+/* NOTES */
 #infoBtn{
   cursor:pointer;
   padding:10px;
@@ -142,6 +155,7 @@ select,button{
 
 <div class="container">
 
+<!-- ACTION -->
 <select id="action">
   <option value="open">Open</option>
   <option value="open3bet">Open 3bet</option>
@@ -150,6 +164,7 @@ select,button{
   <option value="allin">All-in</option>
 </select>
 
+<!-- POSITION -->
 <select id="position">
   <option value="utg">UTG</option>
   <option value="hj">HJ</option>
@@ -159,15 +174,18 @@ select,button{
   <option value="bb">BB</option>
 </select>
 
+<!-- STACK -->
 <select id="stack"></select>
 
+<!-- NOTES -->
 <button id="infoBtn">ⓘ Notes pour cette action</button>
 
 <div id="infoBubble" class="info-bubble hidden">
-  <textarea id="infoText"></textarea>
+  <textarea id="infoText" placeholder="Notes stratégiques, leaks adverses, sizing exploit…"></textarea>
   <button id="saveInfo">💾 Sauvegarder la note</button>
 </div>
 
+<!-- CONTROLS -->
 <div class="buttons">
   <button id="coachToggle">🧠 Coach : OFF</button>
   <button onclick="exportImage()">📤 Image</button>
@@ -179,6 +197,18 @@ select,button{
 </div>
 
 <div id="percent">Range : 0%</div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <div><div class="box utg"></div>UTG</div>
+  <div><div class="box hj"></div>HJ</div>
+  <div><div class="box co"></div>CO</div>
+  <div><div class="box btn"></div>BTN</div>
+  <div><div class="box sb"></div>SB</div>
+  <div><div class="box bb"></div>BB</div>
+</div>
+
+<!-- GRID -->
 <div id="grid" class="grid"></div>
 
 </div>
@@ -227,11 +257,17 @@ function build(){
 
     d.onclick=()=>{
       if(coachMode) return;
-      if(saved[h]){delete saved[h];d.className="cell fold";}
-      else{saved[h]={pos:position.value};d.className="cell "+position.value;}
+      if(saved[h]){
+        delete saved[h];
+        d.className="cell fold";
+      }else{
+        saved[h]={pos:position.value};
+        d.className="cell "+position.value;
+      }
       localStorage.setItem(rangeKey(),JSON.stringify(saved));
       updatePercent();
     };
+
     grid.appendChild(d);
   }));
   updatePercent();
@@ -282,7 +318,7 @@ saveInfo.onclick=()=>{
   refreshInfoBtn();
 };
 
-/* EXPORT / IMPORT COMPLET */
+/* EXPORT / IMPORT */
 function exportAll(){
   const data={ranges:{},notes:{}};
   Object.keys(localStorage).forEach(k=>{
@@ -318,7 +354,9 @@ action.onchange=()=>{updateStack();build();refreshInfoBtn();};
 position.onchange=build;
 stack.onchange=build;
 
-updateStack();build();refreshInfoBtn();
+updateStack();
+build();
+refreshInfoBtn();
 </script>
 
 </body>
