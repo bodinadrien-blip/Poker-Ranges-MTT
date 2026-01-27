@@ -14,13 +14,13 @@
   --text:#fff;
   --muted:#8a93a3;
 
-  /* Positions colors */
-  --utg:#d32f2f;
-  --hj:#f57c00;
-  --co:#fbc02d;
-  --btn:#7cb342;
-  --sb:#43a047;
-  --bb:#1b5e20;
+  /* NOUVELLES COULEURS POSITIONS */
+  --utg:#2ecc71;     /* vert */
+  --hj:#9b59b6;      /* violet */
+  --co:#3498db;      /* bleu */
+  --btn:#f39c12;     /* orange */
+  --sb:#e74c3c;      /* rouge */
+  --bb:#c0392b;      /* rouge foncé */
 
   --fold:#2a2f3a;
   --info:#7aa2ff;
@@ -78,8 +78,8 @@ select,button{
 .fold{background:var(--fold);color:var(--muted)}
 .utg{background:var(--utg)}
 .hj{background:var(--hj)}
-.co{background:var(--co);color:#000}
-.btn{background:var(--btn)}
+.co{background:var(--co)}
+.btn{background:var(--btn);color:#000}
 .sb{background:var(--sb)}
 .bb{background:var(--bb)}
 
@@ -155,7 +155,6 @@ select,button{
 
 <div class="container">
 
-<!-- ACTION -->
 <select id="action">
   <option value="open">Open</option>
   <option value="open3bet">Open 3bet</option>
@@ -164,7 +163,6 @@ select,button{
   <option value="allin">All-in</option>
 </select>
 
-<!-- POSITION -->
 <select id="position">
   <option value="utg">UTG</option>
   <option value="hj">HJ</option>
@@ -174,18 +172,15 @@ select,button{
   <option value="bb">BB</option>
 </select>
 
-<!-- STACK -->
 <select id="stack"></select>
 
-<!-- NOTES -->
 <button id="infoBtn">ⓘ Notes pour cette action</button>
 
 <div id="infoBubble" class="info-bubble hidden">
-  <textarea id="infoText" placeholder="Notes stratégiques, leaks adverses, sizing exploit…"></textarea>
+  <textarea id="infoText" placeholder="Notes stratégiques, exploits, reads…"></textarea>
   <button id="saveInfo">💾 Sauvegarder la note</button>
 </div>
 
-<!-- CONTROLS -->
 <div class="buttons">
   <button id="coachToggle">🧠 Coach : OFF</button>
   <button onclick="exportImage()">📤 Image</button>
@@ -198,7 +193,7 @@ select,button{
 
 <div id="percent">Range : 0%</div>
 
-<!-- LEGEND -->
+<!-- LÉGENDE -->
 <div class="legend">
   <div><div class="box utg"></div>UTG</div>
   <div><div class="box hj"></div>HJ</div>
@@ -208,12 +203,11 @@ select,button{
   <div><div class="box bb"></div>BB</div>
 </div>
 
-<!-- GRID -->
 <div id="grid" class="grid"></div>
-
 </div>
 
 <script>
+/* JS IDENTIQUE À LA VERSION PRÉCÉDENTE – NON MODIFIÉ */
 const ranks=["A","K","Q","J","T","9","8","7","6","5","4","3","2"];
 const grid=document.getElementById("grid");
 const stack=document.getElementById("stack");
@@ -257,17 +251,11 @@ function build(){
 
     d.onclick=()=>{
       if(coachMode) return;
-      if(saved[h]){
-        delete saved[h];
-        d.className="cell fold";
-      }else{
-        saved[h]={pos:position.value};
-        d.className="cell "+position.value;
-      }
+      if(saved[h]){delete saved[h];d.className="cell fold";}
+      else{saved[h]={pos:position.value};d.className="cell "+position.value;}
       localStorage.setItem(rangeKey(),JSON.stringify(saved));
       updatePercent();
     };
-
     grid.appendChild(d);
   }));
   updatePercent();
@@ -278,14 +266,12 @@ function updatePercent(){
   percent.textContent=`${action.value.toUpperCase()} · ${position.value.toUpperCase()} · ${stack.value} : ${(a/169*100).toFixed(1)}%`;
 }
 
-/* COACH */
 coachToggle.onclick=()=>{
   coachMode=!coachMode;
   document.body.classList.toggle("coach-on",coachMode);
   coachToggle.textContent=coachMode?"🧠 Coach : ON":"🧠 Coach : OFF";
 };
 
-/* IMAGE EXPORT */
 function exportImage(){
   html2canvas(grid).then(c=>{
     const a=document.createElement("a");
@@ -302,7 +288,6 @@ const infoText=document.getElementById("infoText");
 const saveInfo=document.getElementById("saveInfo");
 
 function infoKey(){return `info_${action.value}`;}
-
 function refreshInfoBtn(){
   infoBtn.classList.toggle("active",!!localStorage.getItem(infoKey()));
 }
@@ -318,7 +303,6 @@ saveInfo.onclick=()=>{
   refreshInfoBtn();
 };
 
-/* EXPORT / IMPORT */
 function exportAll(){
   const data={ranges:{},notes:{}};
   Object.keys(localStorage).forEach(k=>{
