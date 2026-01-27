@@ -112,6 +112,7 @@ select,button{
   <option value="allin">All-in</option>
 </select>
 
+<!-- POSITIONS -->
 <select id="position">
   <option value="utg">UTG</option>
   <option value="hj">HJ</option>
@@ -154,6 +155,8 @@ const ranks=["A","K","Q","J","T","9","8","7","6","5","4","3","2"];
 const grid=document.getElementById("grid");
 const stack=document.getElementById("stack");
 const percent=document.getElementById("percent");
+const action=document.getElementById("action");
+const position=document.getElementById("position");
 let coachMode=false;
 
 /* ACTION CONFIG */
@@ -164,9 +167,6 @@ const ACTIONS={
   raise:["Small","Medium","Big"],
   allin:["≤10bb","≤15bb","≤20bb"]
 };
-
-/* ROTATING POSITION COLORS */
-const POSITIONS=["utg","hj","co","btn","sb","bb"];
 
 function updateStack(){
   stack.innerHTML="";
@@ -184,42 +184,41 @@ function key(){
 function build(){
   grid.innerHTML="";
   const saved=JSON.parse(localStorage.getItem(key())||"{}");
-  let posIndex=0;
 
   ranks.forEach((r,i)=>ranks.forEach((c,j)=>{
     const h=i===j?r+r:i<j?r+c+"s":c+r+"o";
     const d=document.createElement("div");
     const pos = position.value;
 
-    d.className="cell "+(saved[h]||"fold");
-    d.dataset.pos=pos;
+    d.className="cell "+(saved[h]?.pos || "fold");
     d.textContent=h;
 
     d.onclick=()=>{
       if(coachMode) return;
+
       if(saved[h]){
         delete saved[h];
         d.className="cell fold";
       }else{
-        saved[h] = {pos, action: action.value};
-d.className = "cell " + pos;
+        saved[h]={pos, action: action.value};
+        d.className="cell "+pos;
       }
+
       localStorage.setItem(key(),JSON.stringify(saved));
       updatePercent();
     };
 
     grid.appendChild(d);
-    posIndex++;
   }));
   updatePercent();
 }
 
 function updatePercent(){
   const a=[...document.querySelectorAll('.cell')].filter(c=>!c.classList.contains("fold")).length;
-  percent.textContent=`${action.value.toUpperCase()} · ${stack.value} : ${(a/169*100).toFixed(1)}%`;
+  percent.textContent=`${action.value.toUpperCase()} · ${position.value.toUpperCase()} · ${stack.value} : ${(a/169*100).toFixed(1)}%`;
 }
 
-coachToggle.onclick=()=>{
+document.getElementById("coachToggle").onclick=()=>{
   coachMode=!coachMode;
   document.body.classList.toggle("coach-on",coachMode);
   coachToggle.textContent=coachMode?"🧠 Coach : ON":"🧠 Coach : OFF";
@@ -263,6 +262,7 @@ function importJSON(){
 }
 
 action.onchange=()=>{updateStack();build()};
+position.onchange=build;
 stack.onchange=build;
 
 updateStack();
