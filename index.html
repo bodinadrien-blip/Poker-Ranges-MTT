@@ -95,10 +95,11 @@ select,button{
 
 .coach-on .cell{pointer-events:none;filter:brightness(.9)}
 
-.info-line{
+.action-line{
   display:flex;
-  justify-content:flex-end;
-  margin:-6px 0 10px;
+  align-items:center;
+  gap:8px;
+  margin-bottom:6px;
 }
 
 #infoBtn{
@@ -106,14 +107,19 @@ select,button{
   font-weight:800;
   font-size:14px;
   color:#7aa2ff;
+  background:#0e1220;
+  border:1px solid var(--border);
+  border-radius:50%;
+  width:22px;
+  height:22px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
 }
 
-.info-bubble{
-  background:var(--panel);
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:10px;
-  margin-bottom:10px;
+.action-line select{
+  flex:1;
 }
 
 .info-bubble textarea{
@@ -151,13 +157,16 @@ select,button{
   <option value="allin">All-in</option>
 </select>
 
-<div class="info-line">
-  <span id="infoBtn">ⓘ</span>
-</div>
+<div class="action-line">
+  <span id="infoBtn" title="Notes pour cette action">ⓘ</span>
 
-<div id="infoBubble" class="info-bubble hidden">
-  <textarea id="infoText" placeholder="Notes pour cette action..."></textarea>
-  <button id="saveInfo">💾 Sauvegarder</button>
+  <select id="action">
+    <option value="open">Open</option>
+    <option value="open3bet">Open 3bet</option>
+    <option value="call">Call</option>
+    <option value="raise">Raise</option>
+    <option value="allin">All-in</option>
+  </select>
 </div>
 
 <!-- POSITIONS -->
