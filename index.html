@@ -113,6 +113,19 @@ button{
   font-weight:700;
   margin:8px 0;
 }
+
+.coach-on .cell{
+  pointer-events:none;
+  filter:brightness(.9);
+}
+
+.coach-banner{
+  text-align:center;
+  font-size:12px;
+  color:#ff9800;
+  margin-bottom:6px;
+  font-weight:700;
+}
 </style>
 </head>
 
@@ -137,7 +150,7 @@ button{
 <select id="stack"></select>
 
 <div class="buttons">
-  <button onclick="toggleCoach()">🎓 Coach</button>
+  <button id="coachToggle">🧠 Mode coach : OFF</button
   <button onclick="exportImage()">📤 Image</button>
 </div>
 
@@ -203,17 +216,13 @@ function build(){
     d.className="cell "+(saved[h]||"fold");
     d.textContent=h;
     d.onclick=()=>{
-      if(coachMode) return;
-      if(saved[h]===action.value){
-        delete saved[h];
-        d.className="cell fold";
-      }else{
-        saved[h]=action.value;
-        d.className="cell "+action.value;
-      }
-      localStorage.setItem(key(),JSON.stringify(saved));
-      updatePercent();
-    };
+  if(coachMode) return; // ⛔ lecture seule
+
+  d.className="cell "+action.value;
+  saved[h]=action.value;
+  save(saved);
+  updatePercent();
+};
     grid.appendChild(d);
   }));
   updatePercent();
@@ -224,10 +233,18 @@ function updatePercent(){
   percent.textContent=`${spot.value} · ${action.value} · ${stack.options[stack.selectedIndex]?.text} : ${(a/169*100).toFixed(1)}%`;
 }
 
-function toggleCoach(){
-  coachMode=!coachMode;
-  alert(coachMode?"🎓 Mode coach activé (lecture seule)":"🎓 Mode coach désactivé");
-}
+let coachMode = false;
+const coachBtn = document.getElementById("coachToggle");
+
+coachBtn.onclick = ()=>{
+  coachMode = !coachMode;
+
+  document.body.classList.toggle("coach-on", coachMode);
+
+  coachBtn.textContent = coachMode
+    ? "🧠 Mode coach : ON"
+    : "🧠 Mode coach : OFF";
+};
 
 function exportImage(){
   html2canvas(grid).then(c=>{
