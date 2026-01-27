@@ -296,21 +296,18 @@ coachToggle.onclick=()=>{
 };
 
 function exportImage(){
-  const wrapper = document.querySelector('.grid-wrapper');
-
-  const fileName = [
-    action.value.toUpperCase(),
-    position.value.toUpperCase(),
-    stack.value.replace(/\s+/g,'-')
-  ].join("_");
-
-  html2canvas(wrapper, { scale: 2 }).then(c=>{
+  html2canvas(grid).then(c=>{
     const a=document.createElement("a");
     a.href=c.toDataURL("image/png");
-    a.download=fileName + ".png";
+    a.download=`${action.value}_${position.value}_${stack.value}.png`;
     a.click();
+
+    if(/iPhone|iPad|iPod/i.test(navigator.userAgent)){
+      alert("📸 Touchez l’image puis « Enregistrer dans Photos »");
+    }
   });
 }
+
 
 /* NOTES */
 const infoBtn=document.getElementById("infoBtn");
