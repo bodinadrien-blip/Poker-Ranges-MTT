@@ -2,15 +2,8 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Poker Ranges MTT Pro</title>
-
-<!-- iOS PWA -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Poker Ranges">
-<link rel="apple-touch-icon" href="icon-192.png">
-<link rel="manifest" href="manifest.json">
 
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
@@ -18,14 +11,18 @@
 :root{
   --panel:#141820;
   --border:#1f2633;
-  --open:#2ecc71;
-  --open3bet:#2ecc71;
-  --call:#1e88e5;
-  --rase:#ff9800;
-  --allin:#e53935;
-  --fold:#2a2f3a;
   --text:#fff;
   --muted:#8a93a3;
+
+  /* Positions colors */
+  --utg:#d32f2f;
+  --hj:#f57c00;
+  --co:#fbc02d;
+  --btn:#7cb342;
+  --sb:#43a047;
+  --bb:#1b5e20;
+
+  --fold:#2a2f3a;
 }
 
 body{
@@ -39,8 +36,7 @@ header{
   padding:14px;
   text-align:center;
   font-weight:800;
-  letter-spacing:1px;
-  background:linear-gradient(180deg,#111520,#0a0c11);
+  background:#0a0c11;
   border-bottom:1px solid var(--border);
 }
 
@@ -58,10 +54,7 @@ select,button{
   font-weight:600;
 }
 
-.buttons{
-  display:flex;
-  gap:8px;
-}
+.buttons{display:flex;gap:8px}
 
 .grid{
   display:grid;
@@ -74,18 +67,19 @@ select,button{
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:clamp(14px,3.5vw,26px);
   border-radius:8px;
   font-weight:700;
   user-select:none;
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);
 }
 
-.open{background:linear-gradient(135deg,#1e824c,var(--open))}
-.call{background:linear-gradient(135deg,#1565c0,var(--call))}
-.bet3{background:linear-gradient(135deg,#ff6f00,var(--bet3));color:#000}
-.allin{background:linear-gradient(135deg,#b71c1c,var(--allin))}
 .fold{background:var(--fold);color:var(--muted)}
+.utg{background:var(--utg)}
+.hj{background:var(--hj)}
+.co{background:var(--co);color:#000}
+.btn{background:var(--btn)}
+.sb{background:var(--sb)}
+.bb{background:var(--bb)}
 
 .legend{
   display:flex;
@@ -97,38 +91,28 @@ select,button{
 .legend div{display:flex;align-items:center;gap:4px}
 .box{width:12px;height:12px;border-radius:3px}
 
-#percent{
-  text-align:center;
-  font-weight:700;
-  margin:8px 0;
-}
+#percent{text-align:center;font-weight:700;margin:8px 0}
 
-.coach-on .cell{
-  pointer-events:none;
-  filter:brightness(.9);
-}
+.coach-on .cell{pointer-events:none;filter:brightness(.9)}
 </style>
 </head>
 
 <body>
+
 <header>♠️ POKER RANGES — MTT PRO</header>
 
 <div class="container">
 
-<select id="spot">
-  <option>UTG</option><option>HJ</option><option>CO</option>
-  <option>BTN</option><option>SB</option><option>BB</option>
-</select>
-
+<!-- ACTIONS -->
 <select id="action">
   <option value="open">Open</option>
-  <option value="open3bet">Open3bet</option>
+  <option value="open3bet">Open 3bet</option>
   <option value="call">Call</option>
-  <option value="rase">Rase</option>
+  <option value="raise">Raise</option>
   <option value="allin">All-in</option>
-  <option value="fold">Fold</option>
 </select>
 
+<!-- OPTIONS -->
 <select id="stack"></select>
 
 <div class="buttons">
@@ -143,13 +127,14 @@ select,button{
 
 <div id="percent">Range : 0%</div>
 
+<!-- LEGEND POSITIONS -->
 <div class="legend">
-  <div><div class="box open"></div>Open</div>
-  <div><div class="box open3bet"></div>Open3bet</div>
-  <div><div class="box call"></div>Call</div>
-  <div><div class="box rase"></div>Rase</div>
-  <div><div class="box allin"></div>All-in</div>
-  <div><div class="box fold"></div>Fold</div>
+  <div><div class="box utg"></div>UTG</div>
+  <div><div class="box hj"></div>HJ</div>
+  <div><div class="box co"></div>CO</div>
+  <div><div class="box btn"></div>BTN</div>
+  <div><div class="box sb"></div>SB</div>
+  <div><div class="box bb"></div>BB</div>
 </div>
 
 <div id="grid" class="grid"></div>
@@ -162,64 +147,70 @@ const stack=document.getElementById("stack");
 const percent=document.getElementById("percent");
 let coachMode=false;
 
-const stackOptions={
-  UTG:{open:["Début mtt","Milieu mtt","Fin mtt"],open3bet:["12>30bb","30>50bb","500bb+"],call:["2bb"],rase:["2bb+"],allin:["12bb","8bb"]},
-  HJ:{open:["20bb x2","30bb x2.5","45bb x3"],call:["Standard"],bet3:["Mix"],allin:["≤10bb"],fold:["—"]},
-  CO:{open:["20bb x2","30bb x2.5","45bb x3"],call:["Large"],bet3:["Value","Light"],allin:["≤12bb"],fold:["—"]},
-  BTN:{open:["20bb x2","30bb x2.5","45bb x3"],call:["Très large"],bet3:["Aggro","Light"],allin:["≤15bb"],fold:["—"]},
-  SB:{open:["Début x3.5","Milieu x2.5","Fin x2.1"],call:["Rare"],bet3:["Polarisé"],allin:["≤12bb"],fold:["—"]},
-  BB:{open:["Début x3.5","Milieu x2.5","Fin x2.1"],call:["Très large"],bet3:["Value","Light"],allin:["≤15bb"],fold:["—"]}
+/* ACTION CONFIG */
+const ACTIONS={
+  open:["2bb","2.2bb","2.5bb"],
+  open3bet:["6bb","7.5bb","9bb"],
+  call:["Tight","Standard","Loose"],
+  raise:["Small","Medium","Big"],
+  allin:["≤10bb","≤15bb","≤20bb"]
 };
+
+/* ROTATING POSITION COLORS */
+const POSITIONS=["utg","hj","co","btn","sb","bb"];
 
 function updateStack(){
   stack.innerHTML="";
-  stackOptions[spot.value][action.value].forEach(v=>{
+  ACTIONS[action.value].forEach(v=>{
     const o=document.createElement("option");
-    o.value=v;
     o.textContent=v;
     stack.appendChild(o);
   });
 }
 
 function key(){
-  return `range_${spot.value}_${action.value}_${stack.value}`;
+  return `range_${action.value}_${stack.value}`;
 }
 
 function build(){
   grid.innerHTML="";
   const saved=JSON.parse(localStorage.getItem(key())||"{}");
+  let posIndex=0;
 
   ranks.forEach((r,i)=>ranks.forEach((c,j)=>{
     const h=i===j?r+r:i<j?r+c+"s":c+r+"o";
     const d=document.createElement("div");
+    const pos=POSITIONS[posIndex%6];
+
     d.className="cell "+(saved[h]||"fold");
+    d.dataset.pos=pos;
     d.textContent=h;
 
     d.onclick=()=>{
       if(coachMode) return;
-
       if(saved[h]){
         delete saved[h];
         d.className="cell fold";
       }else{
-        saved[h]=action.value;
-        d.className="cell "+action.value;
+        saved[h]=pos;
+        d.className="cell "+pos;
       }
-
       localStorage.setItem(key(),JSON.stringify(saved));
       updatePercent();
     };
+
     grid.appendChild(d);
+    posIndex++;
   }));
   updatePercent();
 }
 
 function updatePercent(){
   const a=[...document.querySelectorAll('.cell')].filter(c=>!c.classList.contains("fold")).length;
-  percent.textContent=`${spot.value} · ${action.value} · ${stack.value} : ${(a/169*100).toFixed(1)}%`;
+  percent.textContent=`${action.value.toUpperCase()} · ${stack.value} : ${(a/169*100).toFixed(1)}%`;
 }
 
-document.getElementById("coachToggle").onclick=()=>{
+coachToggle.onclick=()=>{
   coachMode=!coachMode;
   document.body.classList.toggle("coach-on",coachMode);
   coachToggle.textContent=coachMode?"🧠 Coach : ON":"🧠 Coach : OFF";
@@ -262,11 +253,12 @@ function importJSON(){
   i.click();
 }
 
-spot.onchange=action.onchange=()=>{updateStack();build();};
+action.onchange=()=>{updateStack();build()};
 stack.onchange=build;
 
 updateStack();
 build();
 </script>
+
 </body>
 </html>
