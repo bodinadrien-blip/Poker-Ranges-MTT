@@ -94,12 +94,16 @@ select,button{
 
 #percent{text-align:center;font-weight:700;margin:8px 0}
 
-.coach-on .cell{pointer-events:none;filter:brightness(.9)}
+.coach-on .cell{
+  pointer-events:none;
+  filter:brightness(.9);
+}
 
+/* INFO NOTES */
 #infoBtn{
   cursor:pointer;
-  padding:6px 10px;
-  border-radius:8px;
+  padding:10px;
+  border-radius:10px;
   border:1px solid var(--border);
   background:#0e1220;
   color:var(--info);
@@ -165,12 +169,18 @@ select,button{
 </div>
 
 <div class="buttons">
+  <button id="coachToggle">🧠 Coach : OFF</button>
+  <button onclick="exportImage()">📤 Image</button>
+</div>
+
+<div class="buttons">
   <button onclick="exportAll()">💾 Export ranges + notes</button>
   <button onclick="importAll()">📂 Import ranges + notes</button>
 </div>
 
 <div id="percent">Range : 0%</div>
 <div id="grid" class="grid"></div>
+
 </div>
 
 <script>
@@ -180,6 +190,9 @@ const stack=document.getElementById("stack");
 const percent=document.getElementById("percent");
 const action=document.getElementById("action");
 const position=document.getElementById("position");
+const coachToggle=document.getElementById("coachToggle");
+
+let coachMode=false;
 
 const ACTIONS={
   open:["2bb","2.2bb","2.5bb"],
@@ -211,7 +224,9 @@ function build(){
     const d=document.createElement("div");
     d.className="cell "+(saved[h]?.pos||"fold");
     d.textContent=h;
+
     d.onclick=()=>{
+      if(coachMode) return;
       if(saved[h]){delete saved[h];d.className="cell fold";}
       else{saved[h]={pos:position.value};d.className="cell "+position.value;}
       localStorage.setItem(rangeKey(),JSON.stringify(saved));
@@ -225,6 +240,23 @@ function build(){
 function updatePercent(){
   const a=[...document.querySelectorAll('.cell')].filter(c=>!c.classList.contains("fold")).length;
   percent.textContent=`${action.value.toUpperCase()} · ${position.value.toUpperCase()} · ${stack.value} : ${(a/169*100).toFixed(1)}%`;
+}
+
+/* COACH */
+coachToggle.onclick=()=>{
+  coachMode=!coachMode;
+  document.body.classList.toggle("coach-on",coachMode);
+  coachToggle.textContent=coachMode?"🧠 Coach : ON":"🧠 Coach : OFF";
+};
+
+/* IMAGE EXPORT */
+function exportImage(){
+  html2canvas(grid).then(c=>{
+    const a=document.createElement("a");
+    a.href=c.toDataURL();
+    a.download=rangeKey()+".png";
+    a.click();
+  });
 }
 
 /* NOTES */
