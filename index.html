@@ -248,7 +248,7 @@ select,button{
 </div>
 
 <div class="buttons">
-  <button id="coachToggle">🧠 Coach : ON</button>
+  <button id="coachToggle">🧠 Coach : OFF</button>
   <button onclick="exportImage()">📤 Image</button>
 </div>
 
@@ -267,7 +267,7 @@ const action=document.getElementById("action");
 const position=document.getElementById("position");
 const coachToggle=document.getElementById("coachToggle");
 
-let coachMode=false;
+let coachMode=true;
 
 const ACTIONS={
   open:["Debut mtt","Milieu mtt","Fin mtt"],
