@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -200,8 +201,8 @@ select,button{
   transform:scale(1.08);
   filter:brightness(1.15);
   z-index:2;
-}  
-      
+}
+
 </style>
 </head>
 
@@ -231,8 +232,6 @@ select,button{
 
 <select id="stack"></select>
 
-<button id="viewMode">👁️ Range Viewer : OFF</button>
-
 <button id="infoBtn">ⓘ Notes pour cette action</button>
 
 <div id="infoBubble" class="info-bubble hidden">
@@ -260,31 +259,11 @@ select,button{
   <!-- GRID -->
   <div id="grid" class="grid"></div>
 
-<div id="stats" style="text-align:center;margin-top:8px;font-weight:700;"></div>
-
-</div>
-
-<div class="info-bubble">
-  <b>📈 EV Tracker</b><br><br>
-
-  Fold equity (%)  
-  <input id="feInput" type="number" value="45"><br><br>
-
-  Equity (%)  
-  <input id="eqInput" type="number" value="40"><br><br>
-
-  Pot (bb)  
-  <input id="potInput" type="number" value="3"><br><br>
-
-  Risk (bb)  
-  <input id="riskInput" type="number" value="2.5"><br><br>
-
-  <button onclick="calcEV()">📊 Calculer EV</button>
-  <div id="evResult" style="margin-top:6px;font-weight:800;"></div>
 </div>
 
 <div class="buttons">
   <button id="coachToggle">🧠 Coach : ON</button>
+  <button id="viewMode">👁️ Range Viewer : OFF</button>
   <button onclick="exportImage()">📤 Image</button>
 </div>
 
@@ -483,26 +462,6 @@ function buildView(){
   }));
 
   updateStats(merged);
-}
-
-function updateStats(obj){
-  const n = Object.keys(obj).length;
-  const p = (n/169*100).toFixed(1);
-  document.getElementById("stats").textContent =
-    `Range global ${position.value.toUpperCase()} : ${p}% (${n} combos)`;
-}
-
-function calcEV(){
-  const fe = feInput.value/100;
-  const eq = eqInput.value/100;
-  const pot = +potInput.value;
-  const risk = +riskInput.value;
-
-  const ev = fe*pot + (1-fe)*(eq*pot - risk);
-
-  evResult.innerHTML =
-    "EV = <b>"+ev.toFixed(3)+" bb</b> " +
-    (ev>0?"🟢 PROFITABLE":"🔴 -EV");
 }
 
 action.onchange=()=>{updateStack();build();refreshInfoBtn();};
