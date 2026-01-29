@@ -448,16 +448,15 @@ function buildView(){
   const idx = POS_ORDER.indexOf(position.value);
   const allowed = POS_ORDER.slice(0, idx + 1);
 
-  Object.keys(localStorage).forEach(k=>{
-    if(!k.startsWith("range_")) return;
+  // 👉 clé EXACTE selon action + stack
+  const key = rangeKey();
 
-    const data = JSON.parse(localStorage.getItem(k) || "{}");
+  const data = JSON.parse(localStorage.getItem(key) || "{}");
 
-    Object.entries(data).forEach(([hand,val])=>{
-      if(val && allowed.includes(val.pos)){
-        merged[hand] = val.pos;
-      }
-    });
+  Object.entries(data).forEach(([hand,val])=>{
+    if(val && allowed.includes(val.pos)){
+      merged[hand] = val.pos;
+    }
   });
 
   ranks.forEach((r,i)=>ranks.forEach((c,j)=>{
