@@ -441,6 +441,15 @@ document.getElementById("viewMode").onclick=()=>{
   viewMode ? buildView() : build();
 };
 
+function combosCount(hand){
+  // Paire (AA,KK…)
+  if(hand[0] === hand[1]) return 6;
+  // Suited (s)
+  if(hand.endsWith("s")) return 4;
+  // Offsuit (o)
+  return 12;
+}
+
 function buildView(){
   grid.innerHTML="";
 
@@ -473,12 +482,15 @@ function buildView(){
 }
 
 function updateStats(obj){
-  const n = Object.keys(obj).length;
-  const p = (n/169*100).toFixed(1);
+  let totalCombos = 0;
+  Object.keys(obj).forEach(h => totalCombos += combosCount(h));
+
+  const percent = (totalCombos / 1326 * 100).toFixed(2);
 
   document.getElementById("stats").textContent =
-    `📊 Range cumulé ${position.value.toUpperCase()} : ${p}% (${n} combos)`;
+    `📊 Range cumulé ${position.value.toUpperCase()} : ${percent}% (${totalCombos} combos réels)`;
 }
+
 
 action.onchange=()=>{
   updateStack();
