@@ -261,6 +261,8 @@ select,button{
 
 </div>
 
+<div id="stats" style="text-align:center;margin-top:8px;font-weight:700;"></div>
+
 <div class="buttons">
   <button id="coachToggle">🧠 Coach : ON</button>
   <button id="viewMode">👁️ Range Viewer : OFF</button>
@@ -462,6 +464,13 @@ function buildView(){
   }));
 
   updateStats(merged);
+}
+
+function updateStats(obj){
+  const n = Object.keys(obj).length;
+  const p = (n/169*100).toFixed(1);
+  document.getElementById("stats").textContent =
+    `Range global ${position.value.toUpperCase()} : ${p}% (${n} combos)`;
 }
 
 action.onchange=()=>{updateStack();build();refreshInfoBtn();};
