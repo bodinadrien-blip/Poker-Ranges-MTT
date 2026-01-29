@@ -16,7 +16,7 @@
 
   /* NOUVELLES COULEURS POSITIONS */
   --utg:#2ecc71;     /* vert */
-  --utg1:#0F3D2E;    /* vert foncé */
+  --utg1:#1B4332;    /* vert foncé */
   --hj:#9b59b6;      /* violet */
   --co:#3498db;      /* bleu */
   --btn:#f39c12;     /* orange */
@@ -100,7 +100,7 @@ select,button{
 
 .fold{background:var(--fold);color:var(--muted)}
 .utg{background:var(--utg)}
-.utg1{background:var(--utg+1)}
+.utg1{background:var(--utg1)}
 .hj{background:var(--hj)}
 .co{background:var(--co)}
 .btn{background:var(--btn);color:#000}
@@ -368,7 +368,10 @@ const infoBubble=document.getElementById("infoBubble");
 const infoText=document.getElementById("infoText");
 const saveInfo=document.getElementById("saveInfo");
 
-function infoKey(){return `info_${action.value}`;}
+function infoKey(){
+  return `info_${action.value}_${stack.value.replace(/\s+/g,'_')}`;
+}
+
 function refreshInfoBtn(){
   infoBtn.classList.toggle("active",!!localStorage.getItem(infoKey()));
 }
