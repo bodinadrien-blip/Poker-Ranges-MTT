@@ -436,33 +436,36 @@ let viewMode=false;
 document.getElementById("viewMode").onclick=()=>{
   viewMode=!viewMode;
   document.getElementById("viewMode").textContent =
-    viewMode ? "✏️ Edit Mode" : "👁️ Range Viewer : OFF";
+    viewMode ? "✏️ Edit Mode" : "👁️ Range Viewer";
   viewMode ? buildView() : build();
 };
 
 function buildView(){
   grid.innerHTML="";
-  const merged = {};
 
+  const merged = {};
   const idx = POS_ORDER.indexOf(position.value);
   const allowed = POS_ORDER.slice(0, idx + 1);
 
   Object.keys(localStorage).forEach(k=>{
-    if(k.startsWith("range_")){
-      const data = JSON.parse(localStorage.getItem(k));
-      Object.entries(data).forEach(([hand,val])=>{
-        if(allowed.includes(val.pos)){
-          merged[hand] = val.pos;
-        }
-      });
-    }
+    if(!k.startsWith("range_")) return;
+
+    const data = JSON.parse(localStorage.getItem(k) || "{}");
+
+    Object.entries(data).forEach(([hand,val])=>{
+      if(val && allowed.includes(val.pos)){
+        merged[hand] = val.pos;
+      }
+    });
   });
 
   ranks.forEach((r,i)=>ranks.forEach((c,j)=>{
-    const h=i===j?r+r:i<j?r+c+"s":c+r+"o";
-    const d=document.createElement("div");
-    d.className="cell "+(merged[h]||"fold");
-    d.textContent=h;
+    const h = i===j ? r+r : i<j ? r+c+"s" : c+r+"o";
+
+    const d = document.createElement("div");
+    d.className = "cell " + (merged[h] || "fold");
+    d.textContent = h;
+
     grid.appendChild(d);
   }));
 
@@ -474,12 +477,8 @@ function updateStats(obj){
   const p = (n/169*100).toFixed(1);
   document.getElementById("stats").textContent =
     `Range global ${position.value.toUpperCase()} : ${p}% (${n} combos)`;
-  const POS_ORDER = ["utg","utg1","hj","co","btn","sb","bb"]; 
+  const POS_ORDER = ["utg","utg1","hj","co","btn","sb","bb"];
 }
-
-document.getElementById("stats").innerHTML =
-  `📊 Range cumulé ${position.value.toUpperCase()} : 
-   ${(Object.keys(merged).length/169*100).toFixed(1)}%`;
 
 action.onchange=()=>{updateStack();build();refreshInfoBtn();};
 position.onchange=build;
