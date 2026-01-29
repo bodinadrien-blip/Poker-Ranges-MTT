@@ -477,6 +477,10 @@ function updateStats(obj){
   const POS_ORDER = ["utg","utg1","hj","co","btn","sb","bb"]; 
 }
 
+document.getElementById("stats").innerHTML =
+  `📊 Range cumulé ${position.value.toUpperCase()} : 
+   ${(Object.keys(merged).length/169*100).toFixed(1)}%`;
+
 action.onchange=()=>{updateStack();build();refreshInfoBtn();};
 position.onchange=build;
 stack.onchange=build;
