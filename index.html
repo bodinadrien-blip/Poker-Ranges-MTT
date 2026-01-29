@@ -380,6 +380,7 @@ const infoBtn=document.getElementById("infoBtn");
 const infoBubble=document.getElementById("infoBubble");
 const infoText=document.getElementById("infoText");
 const saveInfo=document.getElementById("saveInfo");
+const POS_ORDER = ["utg","utg1","hj","co","btn","sb","bb"];
 
 function infoKey(){
   return `info_${action.value}_${stack.value.replace(/\s+/g,'_')}`;
@@ -475,14 +476,24 @@ function buildView(){
 function updateStats(obj){
   const n = Object.keys(obj).length;
   const p = (n/169*100).toFixed(1);
+
   document.getElementById("stats").textContent =
-    `Range global ${position.value.toUpperCase()} : ${p}% (${n} combos)`;
-  const POS_ORDER = ["utg","utg1","hj","co","btn","sb","bb"];
+    `📊 Range cumulé ${position.value.toUpperCase()} : ${p}% (${n} combos)`;
 }
 
-action.onchange=()=>{updateStack();build();refreshInfoBtn();};
-position.onchange=build;
-stack.onchange=build;
+action.onchange=()=>{
+  updateStack();
+  viewMode ? buildView() : build();
+  refreshInfoBtn();
+};
+
+position.onchange=()=>{
+  viewMode ? buildView() : build();
+};
+
+stack.onchange=()=>{
+  viewMode ? buildView() : build();
+};
 
 updateStack();
 build();
