@@ -344,7 +344,7 @@ function exportImage(){
   const wrapper = document.querySelector('.export-zone');
   const notesBox = document.getElementById("exportNotes");
 
-  const noteKey = `info_${action.value}`;
+  const noteKey = `info_${action.value}_${stack.value.replace(/\s+/g,'_')}`;
   const note = localStorage.getItem(noteKey);
 
   if(note){
@@ -352,12 +352,25 @@ function exportImage(){
     notesBox.classList.remove("hidden");
   }
 
+  // --- NOUVEAU : wrapper temporaire pour inclure stats ---
+  const tempWrapper = document.createElement("div");
+  tempWrapper.style.display = "inline-block";
+  tempWrapper.style.background = "#07090c";
+  tempWrapper.style.padding = "12px";
+  tempWrapper.style.borderRadius = "12px";
+  tempWrapper.appendChild(wrapper.cloneNode(true));  // clone grille + notes
+  if(viewMode){ // si Range Viewer actif
+    const statClone = document.getElementById("stats").cloneNode(true);
+    statClone.style.marginTop = "8px";
+    tempWrapper.appendChild(statClone);
+  }
+
   const fileName = [
     action.value.toUpperCase(),
     stack.value.replace(/\s+/g,'-')
   ].join("_");
 
-  html2canvas(wrapper, {
+  html2canvas(tempWrapper, {
     scale:2,
     backgroundColor:"#07090c"
   }).then(c=>{
