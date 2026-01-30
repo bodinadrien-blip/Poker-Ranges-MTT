@@ -347,45 +347,54 @@ function exportImage(){
   const noteKey = `info_${action.value}_${stack.value.replace(/\s+/g,'_')}`;
   const note = localStorage.getItem(noteKey);
 
-  if(note){
-    notesBox.textContent = "📝 NOTES — " + action.value.toUpperCase() + "\n" + note;
-    notesBox.classList.remove("hidden");
-  }
-
-  // --- NOUVEAU : wrapper temporaire pour inclure stats ---
+  // Créer un wrapper temporaire attaché au DOM
   const tempWrapper = document.createElement("div");
   tempWrapper.style.display = "inline-block";
   tempWrapper.style.background = "#07090c";
   tempWrapper.style.padding = "12px";
   tempWrapper.style.borderRadius = "12px";
-  tempWrapper.appendChild(wrapper.cloneNode(true));  // clone grille + notes
-  if(viewMode){ // si Range Viewer actif
+
+  // 1️⃣ Grille et légende
+  tempWrapper.appendChild(wrapper.cloneNode(true));
+
+  // 2️⃣ Stats Range Viewer si actif
+  if(viewMode){
     const statClone = document.getElementById("stats").cloneNode(true);
     statClone.style.marginTop = "8px";
+    statClone.style.display = "block"; // important
     tempWrapper.appendChild(statClone);
   }
 
-  const fileName = [
-    action.value.toUpperCase(),
-    stack.value.replace(/\s+/g,'-')
-  ].join("_");
+  // 3️⃣ Notes si existantes
+  if(note){
+    const noteDiv = document.createElement("div");
+    noteDiv.textContent = "📝 NOTES — " + action.value.toUpperCase() + "\n" + note;
+    noteDiv.style.marginTop = "8px";
+    noteDiv.style.fontSize = "12px";
+    noteDiv.style.color = "#d0d6e0";
+    noteDiv.style.background = "#0e1220";
+    noteDiv.style.padding = "8px";
+    noteDiv.style.borderRadius = "8px";
+    tempWrapper.appendChild(noteDiv);
+  }
 
+  // Attacher temporairement au DOM
+  document.body.appendChild(tempWrapper);
+
+  // Export avec html2canvas
   html2canvas(tempWrapper, {
-    scale:2,
-    backgroundColor:"#07090c"
-  }).then(c=>{
-    const a=document.createElement("a");
-    a.href=c.toDataURL("image/png");
-    a.download=fileName + ".png";
+    scale: 2,
+    backgroundColor: "#07090c"
+  }).then(canvas => {
+    const a = document.createElement("a");
+    a.href = canvas.toDataURL("image/png");
+    a.download = `${action.value.toUpperCase()}_${stack.value.replace(/\s+/g,'-')}.png`;
     a.click();
 
-    // 🔁 on cache à nouveau après export
-    notesBox.classList.add("hidden");
-    notesBox.textContent="";
+    // Nettoyage
+    document.body.removeChild(tempWrapper);
   });
 }
-
-
 
 
 /* NOTES */
