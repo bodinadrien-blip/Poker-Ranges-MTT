@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -15,14 +14,13 @@
   --text:#fff;
   --muted:#8a93a3;
 
-  /* NOUVELLES COULEURS POSITIONS */
-  --utg:#2ecc71;     /* vert */
-  --utg1:#2F8F6B;    /* vert foncé */
-  --hj:#9b59b6;      /* violet */
-  --co:#3498db;      /* bleu */
-  --btn:#f39c12;     /* orange */
-  --sb:#ff5c5c;      /* rouge */
-  --bb:#8f2d2d;      /* rouge foncé */
+  --utg:#2ecc71;
+  --utg1:#2F8F6B;
+  --hj:#9b59b6;
+  --co:#3498db;
+  --btn:#f39c12;
+  --sb:#ff5c5c;
+  --bb:#8f2d2d;
 
   --fold:#343b4a;
   --info:#7aa2ff;
@@ -60,44 +58,35 @@ select,button{
 
 .buttons{display:flex;gap:8px}
 
-/* ===== MOBILE FIRST (sans scroll) ===== */
 .grid{
   display:grid;
   grid-template-columns:repeat(13, 1fr);
   gap:2px;
-  width:100%;
 }
 
 .cell{
   aspect-ratio:1/1;
   font-size:clamp(10px, 2.6vw, 14px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:8px;
 }
 
-/* ===== TABLET / DESKTOP ===== */
-@media (min-width: 768px){
+@media (min-width:768px){
   .grid{
     grid-template-columns:repeat(13, 52px);
     width:calc(13 * 52px + 24px);
     margin:0 auto;
   }
-
-  .cell{
-    font-size:16px;
-  }
 }
 
-/* ===== LARGE DESKTOP ===== */
-@media (min-width: 1200px){
+@media (min-width:1200px){
   .grid{
     grid-template-columns:repeat(13, 60px);
     width:calc(13 * 60px + 24px);
   }
-
-  .cell{
-    font-size:18px;
-  }
 }
-
 
 .fold{background:var(--fold);color:var(--muted)}
 .utg{background:var(--utg)}
@@ -112,14 +101,10 @@ select,button{
   display:flex;
   justify-content:space-between;
   font-size:12px;
-  margin:8px 0 12px;
+  margin:8px 0;
   color:var(--muted);
 }
-.legend div{
-  display:flex;
-  align-items:center;
-  gap:4px;
-}
+
 .box{
   width:12px;
   height:12px;
@@ -137,9 +122,7 @@ select,button{
   filter:brightness(.9);
 }
 
-/* NOTES */
 #infoBtn{
-  cursor:pointer;
   padding:10px;
   border-radius:10px;
   border:1px solid var(--border);
@@ -149,7 +132,6 @@ select,button{
 
 #infoBtn.active{
   color:var(--info-active);
-  border-color:var(--info-active);
 }
 
 .info-bubble{
@@ -160,16 +142,6 @@ select,button{
   margin-bottom:10px;
 }
 
-.info-bubble textarea{
-  width:100%;
-  min-height:90px;
-  background:#0e1220;
-  color:#fff;
-  border:1px solid var(--border);
-  border-radius:8px;
-  padding:8px;
-}
-
 .hidden{display:none}
 
 .export-zone{
@@ -178,31 +150,12 @@ select,button{
   border-radius:12px;
 }
 
-.export-notes{
-  font-size:12px;
-  line-height:1.4;
-  color:#d0d6e0;
-  background:#0e1220;
-  border:1px solid var(--border);
-  border-radius:8px;
-  padding:8px;
-  margin-bottom:10px;
-  white-space:pre-wrap;
+@media (hover:none){
+  .cell:hover{
+    transform:none;
+    filter:none;
+  }
 }
-
-@media (min-width:768px){
-  .export-notes{font-size:13px}
-}
-
-.cell{
-  transition:transform .05s ease,filter .05s ease;
-}
-.cell:hover{
-  transform:scale(1.08);
-  filter:brightness(1.15);
-  z-index:2;
-}
-
 </style>
 </head>
 
@@ -232,66 +185,56 @@ select,button{
 
 <select id="stack"></select>
 
-<button id="infoBtn">ⓘ Notes pour cette action</button>
+<button id="infoBtn">ⓘ Notes</button>
 
 <div id="infoBubble" class="info-bubble hidden">
-  <textarea id="infoText" placeholder="Notes stratégiques, exploits, reads…"></textarea>
-  <button id="saveInfo">💾 Sauvegarder la note</button>
+  <textarea id="infoText"></textarea>
+  <button id="saveInfo">💾 Save</button>
 </div>
 
+<div id="percent"></div>
 
 <div class="grid-wrapper export-zone">
 
-  <!-- LÉGENDE -->
-  <div class="legend">
-    <div><div class="box utg"></div>UTG</div>
-    <div><div class="box utg1"></div>UTG+1</div>
-    <div><div class="box hj"></div>HJ</div>
-    <div><div class="box co"></div>CO</div>
-    <div><div class="box btn"></div>BTN</div>
-    <div><div class="box sb"></div>SB</div>
-    <div><div class="box bb"></div>BB</div>
-  </div>
+<div class="legend">
+  <div><div class="box utg"></div>UTG</div>
+  <div><div class="box utg1"></div>UTG+1</div>
+  <div><div class="box hj"></div>HJ</div>
+  <div><div class="box co"></div>CO</div>
+  <div><div class="box btn"></div>BTN</div>
+  <div><div class="box sb"></div>SB</div>
+  <div><div class="box bb"></div>BB</div>
+</div>
 
-  <div id="exportNotes" class="export-notes hidden"></div>
-
-  
-  <!-- GRID -->
-  <div id="grid" class="grid"></div>
+<div id="grid" class="grid"></div>
 
 </div>
 
-<div id="stats" style="text-align:center;margin-top:8px;font-weight:700;"></div>
+<div id="stats"></div>
 
 <div class="buttons">
   <button id="coachToggle">🧠 Coach : ON</button>
-  <button id="viewMode">👁️ Range Viewer : OFF</button>
+  <button id="viewMode">👁️ Viewer</button>
   <button onclick="exportImage()">📤 Image</button>
 </div>
 
-<div class="buttons">
-  <button onclick="exportAll()">💾 Export ranges + notes</button>
-  <button onclick="importAll()">📂 Import ranges + notes</button>
-</div>
-
 <script>
-/* JS IDENTIQUE À LA VERSION PRÉCÉDENTE – NON MODIFIÉ */
 const ranks=["A","K","Q","J","T","9","8","7","6","5","4","3","2"];
 const grid=document.getElementById("grid");
 const stack=document.getElementById("stack");
 const percent=document.getElementById("percent");
 const action=document.getElementById("action");
 const position=document.getElementById("position");
-const coachToggle=document.getElementById("coachToggle");
 
 let coachMode=true;
+let viewMode=false;
 
 const ACTIONS={
-  open3bet:["Debut mtt","Milieu mtt","Fin mtt"],
-  open3betisolip:["utg>btn&bb","sbvsall"],
-  call:["2bb","2bb+"],
+  open3bet:["Debut","Milieu","Fin"],
+  open3betisolip:["iso"],
+  call:["2bb"],
   raise:["2bb"],
-  allin:["+25bb","≤15bb","≤12bb","≤8bb"]
+  allin:["≤15bb","≤12bb","≤8bb"]
 };
 
 function updateStack(){
@@ -304,7 +247,7 @@ function updateStack(){
 }
 
 function rangeKey(){
-  return `range_${action.value}_${stack.value}`;
+  return `range_${action.value}_${position.value}_${stack.value}`;
 }
 
 function build(){
@@ -319,218 +262,55 @@ function build(){
 
     d.onclick=()=>{
       if(coachMode) return;
-      if(saved[h]){delete saved[h];d.className="cell fold";}
-      else{saved[h]={pos:position.value};d.className="cell "+position.value;}
+      if(saved[h]) delete saved[h];
+      else saved[h]={pos:position.value};
       localStorage.setItem(rangeKey(),JSON.stringify(saved));
-      updatePercent();
+      build();
     };
+
     grid.appendChild(d);
   }));
-  updatePercent();
+
+  updatePercent(saved);
 }
 
-function updatePercent(){
-  const a=[...document.querySelectorAll('.cell')].filter(c=>!c.classList.contains("fold")).length;
-  percent.textContent=`${action.value.toUpperCase()} · ${position.value.toUpperCase()} · ${stack.value} : ${(a/169*100).toFixed(1)}%`;
+function updatePercent(saved){
+  const count=Object.keys(saved).length;
+  percent.textContent=`${(count/169*100).toFixed(1)}%`;
 }
-
-coachToggle.onclick=()=>{
-  coachMode=!coachMode;
-  document.body.classList.toggle("coach-on",coachMode);
-  coachToggle.textContent=coachMode?"🧠 Coach : ON":"🧠 Coach : OFF";
-};
 
 function exportImage(){
-  const wrapper = document.querySelector('.export-zone');
-  const notesBox = document.getElementById("exportNotes");
+  const wrapper=document.querySelector('.export-zone');
 
-  const noteKey = `info_${action.value}_${stack.value.replace(/\s+/g,'_')}`;
-  const note = localStorage.getItem(noteKey);
+  const name=[
+    action.value.toUpperCase(),
+    position.value.toUpperCase(),
+    stack.value
+  ].join("_");
 
-  // Créer un wrapper temporaire attaché au DOM
-  const tempWrapper = document.createElement("div");
-  tempWrapper.style.display = "inline-block";
-  tempWrapper.style.background = "#07090c";
-  tempWrapper.style.padding = "12px";
-  tempWrapper.style.borderRadius = "12px";
-
-  // 1️⃣ Grille et légende
-  tempWrapper.appendChild(wrapper.cloneNode(true));
-
-  // 2️⃣ Stats Range Viewer si actif
-  if(viewMode){
-    const statClone = document.getElementById("stats").cloneNode(true);
-    statClone.style.marginTop = "8px";
-    statClone.style.display = "block"; // important
-    tempWrapper.appendChild(statClone);
-  }
-
-  // 3️⃣ Notes si existantes
-  if(note){
-    const noteDiv = document.createElement("div");
-    noteDiv.textContent = "📝 NOTES — " + action.value.toUpperCase() + "\n" + note;
-    noteDiv.style.marginTop = "8px";
-    noteDiv.style.fontSize = "12px";
-    noteDiv.style.color = "#d0d6e0";
-    noteDiv.style.background = "#0e1220";
-    noteDiv.style.padding = "8px";
-    noteDiv.style.borderRadius = "8px";
-    tempWrapper.appendChild(noteDiv);
-  }
-
-  // Attacher temporairement au DOM
-  document.body.appendChild(tempWrapper);
-
-  // Export avec html2canvas
-  html2canvas(tempWrapper, {
-    scale: 2,
-    backgroundColor: "#07090c"
-  }).then(canvas => {
-    const a = document.createElement("a");
-    a.href = canvas.toDataURL("image/png");
-    a.download = `${action.value.toUpperCase()}_${stack.value.replace(/\s+/g,'-')}.png`;
+  html2canvas(wrapper,{scale:2}).then(c=>{
+    const a=document.createElement("a");
+    a.href=c.toDataURL();
+    a.download=name+".png";
     a.click();
-
-    // Nettoyage
-    document.body.removeChild(tempWrapper);
   });
 }
 
-
-/* NOTES */
-const infoBtn=document.getElementById("infoBtn");
-const infoBubble=document.getElementById("infoBubble");
-const infoText=document.getElementById("infoText");
-const saveInfo=document.getElementById("saveInfo");
-const POS_ORDER = ["utg","utg1","hj","co","btn","sb","bb"];
-
-function infoKey(){
-  return `info_${action.value}_${stack.value.replace(/\s+/g,'_')}`;
-}
-
-function refreshInfoBtn(){
-  infoBtn.classList.toggle("active",!!localStorage.getItem(infoKey()));
-}
-
-infoBtn.onclick=()=>{
-  infoBubble.classList.toggle("hidden");
-  infoText.value=localStorage.getItem(infoKey())||"";
+document.getElementById("coachToggle").onclick=()=>{
+  coachMode=!coachMode;
+  document.body.classList.toggle("coach-on",coachMode);
 };
-
-saveInfo.onclick=()=>{
-  localStorage.setItem(infoKey(),infoText.value.trim());
-  infoBubble.classList.add("hidden");
-  refreshInfoBtn();
-};
-
-function exportAll(){
-  const data={ranges:{},notes:{}};
-  Object.keys(localStorage).forEach(k=>{
-    if(k.startsWith("range_")) data.ranges[k]=JSON.parse(localStorage.getItem(k));
-    if(k.startsWith("info_")) data.notes[k]=localStorage.getItem(k);
-  });
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download="ranges_notes_backup.json";
-  a.click();
-}
-
-function importAll(){
-  const i=document.createElement("input");
-  i.type="file";
-  i.accept="application/json";
-  i.onchange=e=>{
-    const r=new FileReader();
-    r.onload=()=>{
-      const d=JSON.parse(r.result);
-      Object.entries(d.ranges||{}).forEach(([k,v])=>localStorage.setItem(k,JSON.stringify(v)));
-      Object.entries(d.notes||{}).forEach(([k,v])=>localStorage.setItem(k,v));
-      build();refreshInfoBtn();
-      alert("✅ Ranges + notes importées");
-    };
-    r.readAsText(e.target.files[0]);
-  };
-  i.click();
-}
-
-let viewMode=false;
 
 document.getElementById("viewMode").onclick=()=>{
   viewMode=!viewMode;
-  document.getElementById("viewMode").textContent =
-    viewMode ? "✏️ Edit Mode" : "👁️ Range Viewer";
-  viewMode ? buildView() : build();
 };
 
-function combosCount(hand){
-  // Paire (AA,KK…)
-  if(hand[0] === hand[1]) return 6;
-  // Suited (s)
-  if(hand.endsWith("s")) return 4;
-  // Offsuit (o)
-  return 12;
-}
-
-function buildView(){
-  grid.innerHTML="";
-
-  const merged = {};
-  const idx = POS_ORDER.indexOf(position.value);
-  const allowed = POS_ORDER.slice(0, idx + 1);
-
-  // 👉 clé EXACTE selon action + stack
-  const key = rangeKey();
-
-  const data = JSON.parse(localStorage.getItem(key) || "{}");
-
-  Object.entries(data).forEach(([hand,val])=>{
-    if(val && allowed.includes(val.pos)){
-      merged[hand] = val.pos;
-    }
-  });
-
-  ranks.forEach((r,i)=>ranks.forEach((c,j)=>{
-    const h = i===j ? r+r : i<j ? r+c+"s" : c+r+"o";
-
-    const d = document.createElement("div");
-    d.className = "cell " + (merged[h] || "fold");
-    d.textContent = h;
-
-    grid.appendChild(d);
-  }));
-
-  updateStats(merged);
-}
-
-function updateStats(obj){
-  let totalCombos = 0;
-  Object.keys(obj).forEach(h => totalCombos += combosCount(h));
-
-  const percent = (totalCombos / 1326 * 100).toFixed(2);
-
-  document.getElementById("stats").textContent =
-    `📊 Range cumulé ${position.value.toUpperCase()} : ${percent}% (${totalCombos} combos réels)`;
-}
-
-
-action.onchange=()=>{
-  updateStack();
-  viewMode ? buildView() : build();
-  refreshInfoBtn();
-};
-
-position.onchange=()=>{
-  viewMode ? buildView() : build();
-};
-
-stack.onchange=()=>{
-  viewMode ? buildView() : build();
-};
+action.onchange=()=>{updateStack();build();};
+position.onchange=build;
+stack.onchange=build;
 
 updateStack();
 build();
-refreshInfoBtn();
 </script>
 
 </body>
