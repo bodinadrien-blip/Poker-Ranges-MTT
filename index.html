@@ -216,6 +216,8 @@ select,button{
   <button id="coachToggle">🧠 Coach : ON</button>
   <button id="viewMode">👁️ Viewer</button>
   <button onclick="exportImage()">📤 Image</button>
+  <button onclick="exportAll()">💾 Export ranges</button>
+  <button onclick="importAll()">📂 Import ranges</button>
 </div>
 
 <script>
@@ -296,9 +298,12 @@ function exportImage(){
   });
 }
 
-document.getElementById("coachToggle").onclick=()=>{
+const coachBtn = document.getElementById("coachToggle");
+
+coachBtn.onclick=()=>{
   coachMode=!coachMode;
   document.body.classList.toggle("coach-on",coachMode);
+  coachBtn.textContent = coachMode ? "🧠 Coach : ON" : "🧠 Coach : OFF";
 };
 
 document.getElementById("viewMode").onclick=()=>{
@@ -311,6 +316,44 @@ stack.onchange=build;
 
 updateStack();
 build();
+
+function exportAll(){
+  const data={};
+
+  Object.keys(localStorage).forEach(k=>{
+    if(k.startsWith("range_")){
+      data[k]=JSON.parse(localStorage.getItem(k));
+    }
+  });
+
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="ranges_backup.json";
+  a.click();
+}
+
+function importAll(){
+  const input=document.createElement("input");
+  input.type="file";
+  input.accept="application/json";
+
+  input.onchange=e=>{
+    const reader=new FileReader();
+    reader.onload=()=>{
+      const data=JSON.parse(reader.result);
+      Object.entries(data).forEach(([k,v])=>{
+        localStorage.setItem(k,JSON.stringify(v));
+      });
+      build();
+      alert("✅ Import terminé");
+    };
+    reader.readAsText(e.target.files[0]);
+  };
+
+  input.click();
+}
+
 </script>
 
 </body>
