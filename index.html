@@ -60,23 +60,23 @@ select,button{
 
 .grid{
   display:grid;
-  grid-template-columns:repeat(13, 28px); /* 🔥 clé */
+  grid-template-columns:repeat(13, minmax(24px,1fr));
   gap:2px;
-  justify-content:center;
+  width:100%;
 }
   
 .grid-wrapper{
   overflow-x:auto;
+  padding:4px; /* évite coupe sur bords iOS */
 }
 
 .cell{
-  width:28px;
-  height:28px;
-  font-size:10px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:6px;
+  aspect-ratio:1/1;
+  font-size:clamp(8px,2.5vw,14px);
+}
+
+.body{
+  touch-action:manipulation;
 }
   
 @media (min-width:768px){
@@ -191,12 +191,18 @@ select,button{
 <div id="sizingLegend" class="legend"></div>
 <div id="grid" class="grid"></div>
 
+<div id="totalStats" style="
+  text-align:center;
+  margin-top:8px;
+  font-weight:700;
+  font-size:13px;
+"></div>
+
 </div>
 
 <!-- LIGNE 1 -->
 <div class="buttons">
   <button id="coachToggle">🧠 Coach : ON</button>
-  <button id="viewMode">👁️ Viewer</button>
   <button onclick="exportImage()">📤 Image</button>
 </div>
 
@@ -215,7 +221,6 @@ const action=document.getElementById("action");
 const position=document.getElementById("position");
 
 let coachMode=true;
-let viewMode=false;
 
 /* CONFIG */
 const CONFIG={
@@ -372,6 +377,7 @@ function build(){
   updateLegend();
   updatePercent(saved);
   updateSizingStats(saved);
+  updateTotalStats(saved);
 }
 
 /* % GLOBAL */
@@ -471,6 +477,29 @@ stack.onchange=build;
 /* INIT */
 updateUI();
 build();
+
+function updateTotalStats(saved){
+  let totalCombos = 0;
+
+  Object.entries(saved).forEach(([hand,obj])=>{
+    let handCombos = 0;
+
+    if(hand[0] === hand[1]) handCombos = 6;
+    else if(hand.endsWith("s")) handCombos = 4;
+    else handCombos = 12;
+
+    let freq = 0;
+    Object.values(obj).forEach(v=>freq += v);
+
+    totalCombos += handCombos * freq;
+  });
+
+  const percent = (totalCombos / 1326 * 100).toFixed(2);
+
+  document.getElementById("totalStats").textContent =
+    `📊 ${percent}% · ${Math.round(totalCombos)} combos`;
+}
+
 </script>
 
 </body>
