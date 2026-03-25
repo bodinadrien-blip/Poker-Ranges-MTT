@@ -171,18 +171,17 @@
   
   <div class="container">
   
-  <select id="action">
-    <option value="open3bet">Open 3bet</option>
-    <option value="open3betisolip">Open 3bet iso lip</option>
-    <option value="3betIP">3bet IP</option>  
-    <option value="3betSB">3betSB</option>  
-    <option value="vs3betIP">vs 3bet IP</option>  
-    <option value="vs3betOP">vs 3bet OP</option>    
-    <option value="BBdéfense">BB défense</option>  
-    <option value="squeeze">squeeze</option>    
-    <option value="squeezeBB">squeeze BB</option>      
-      
-  </select>
+<select id="action">
+  <option value="open3bet">Open 3bet</option>
+  <option value="open3betisolip">Open 3bet iso lip</option>
+  <option value="bet3IP">3bet IP</option>  
+  <option value="bet3SB">3bet SB</option>  
+  <option value="vs3betIP">vs 3bet IP</option>  
+  <option value="vs3betOP">vs 3bet OP</option>    
+  <option value="BBdefense">BB défense</option>  
+  <option value="squeeze">Squeeze</option>    
+  <option value="squeezeBB">Squeeze BB</option>      
+</select>
   
   <select id="position"></select>
     
@@ -231,77 +230,87 @@
   let coachMode=true;
   
   /* CONFIG */
-  const CONFIG={
-    open3bet:{
-      positions:["LJ/UTG","HJ","CO","BTN","SB"],
-      sizings:[
-        {label:"3x Tight",class:"tight"},
-        {label:"3x Loose",class:"loose"}
-      ]
-    },
-    open3betisolip:{
-      positions:["HJ vs UTG","CO vs HJ/UTG","BTN vs CO/HJ/UTG","BB vs SB","SB vs All"],
-      sizings:[
-        {label:"Iso Tight",class:"iso-tight"},
-        {label:"Iso Loose",class:"iso-loose"},
-        {label:"Iso Poubelle SB",class:"iso-trash"}
-      ]
-    }
-    3betIP:{
-      positions:["HJ vs UTG","CO vs UTG","BTN vs UTG","BTN vs HJ","BTN vs CO"],
-      sizings:[
-        {label:"3bet Tight",class:"3bet-tight"},
-        {label:"3bet Loose",class:"3bet-loose"},
-        {label:"call 3bet",class:"call-3bet"}
-      ]
-    }  
-    3betSB:{
-      positions:["SB vs UTG","SB vs HJ","SB vs CO","SB vs BTN"],
-      sizings:[
-        {label:"3bet Tight",class:"3bet-tight"},
-        {label:"3bet Loose",class:"3bet-loose"},
-        {label:"call 3bet",class:"call-3bet"}
-      ]
-    }    
-    vs3betIP:{
-      positions:["UTG vs Blinds","HJ vs Blinds","CO vs Blinds","BTN vs Blinds"],
-      sizings:[
-        {label:"4bet",class:"4bet"},
-        {label:"call",class:"call"},
-        {label:"fold",class:"fold"}
-      ]
-    }    
-    vs3betOP:{
-      positions:["UTG vs HJ/CO","UTG vs BTN","HJ vs CO","HJ vs BTN","CO vs BTN","SB vs BB"],
-      sizings:[
-        {label:"4bet",class:"4bet"},
-        {label:"call",class:"call"},
-        {label:"fold",class:"fold"}
-      ]
-    }     
-    BBdéfense:{
-      positions:["vs UTG","vs HJ","vs CO","vs BTN","vs SB"],
-      sizings:[
-        {label:"3bet",class:"3bet"},
-        {label:"call vs 2,5/3BB",class:"call-vs-2,5/3BB"},
-        {label:"call vs 2BB",class:"call-vs-2BB"}
-      ]
-    }
-    squeeze:{
-      positions:["BTN vs HJ+CO","SB vs HJ+LJ","SB vs LJ+BTN","SB vs HJ+BTN","SB vs CO+BTN"],
-      sizings:[
-        {label:"squeeze",class:"squeeze"},
-        {label:"call",class:"call"},
-      ]
-    }    
-    squeezeBB:{
-      positions:["BB vs LJ+BTN","BB vs HJ+BTN","BB vs CO+BTN","BB vs BTN+SB"],
-      sizings:[
-        {label:"squeeze",class:"squeeze"},
-        {label:"call",class:"call"},
-      ]
-    }       
-  };
+const CONFIG={
+
+  open3bet:{
+    positions:["LJ/UTG","HJ","CO","BTN","SB"],
+    sizings:[
+      {label:"3x Tight",class:"tight"},
+      {label:"3x Loose",class:"loose"}
+    ]
+  },
+
+  open3betisolip:{
+    positions:["HJ vs UTG","CO vs HJ/UTG","BTN vs CO/HJ/UTG","BB vs SB","SB vs All"],
+    sizings:[
+      {label:"Iso Tight",class:"iso-tight"},
+      {label:"Iso Loose",class:"iso-loose"},
+      {label:"Iso Poubelle SB",class:"iso-trash"}
+    ]
+  },
+
+  bet3IP:{
+    positions:["HJ vs UTG","CO vs UTG","BTN vs UTG","BTN vs HJ","BTN vs CO"],
+    sizings:[
+      {label:"3bet Tight",class:"bet3-tight"},
+      {label:"3bet Loose",class:"bet3-loose"},
+      {label:"Call 3bet",class:"call-3bet"}
+    ]
+  },
+
+  bet3SB:{
+    positions:["SB vs UTG","SB vs HJ","SB vs CO","SB vs BTN"],
+    sizings:[
+      {label:"3bet Tight",class:"bet3-tight"},
+      {label:"3bet Loose",class:"bet3-loose"},
+      {label:"Call 3bet",class:"call-3bet"}
+    ]
+  },
+
+  vs3betIP:{
+    positions:["UTG vs Blinds","HJ vs Blinds","CO vs Blinds","BTN vs Blinds"],
+    sizings:[
+      {label:"4bet",class:"bet4"},
+      {label:"Call",class:"call"},
+      {label:"Fold",class:"fold"}
+    ]
+  },
+
+  vs3betOP:{
+    positions:["UTG vs HJ/CO","UTG vs BTN","HJ vs CO","HJ vs BTN","CO vs BTN","SB vs BB"],
+    sizings:[
+      {label:"4bet",class:"bet4"},
+      {label:"Call",class:"call"},
+      {label:"Fold",class:"fold"}
+    ]
+  },
+
+  BBdefense:{
+    positions:["vs UTG","vs HJ","vs CO","vs BTN","vs SB"],
+    sizings:[
+      {label:"3bet",class:"bet3"},
+      {label:"Call vs 2.5/3bb",class:"call-mid"},
+      {label:"Call vs 2bb",class:"call-small"}
+    ]
+  },
+
+  squeeze:{
+    positions:["BTN vs HJ+CO","SB vs HJ+LJ","SB vs LJ+BTN","SB vs HJ+BTN","SB vs CO+BTN"],
+    sizings:[
+      {label:"Squeeze",class:"squeeze"},
+      {label:"Call",class:"call"}
+    ]
+  },
+
+  squeezeBB:{
+    positions:["BB vs LJ+BTN","BB vs HJ+BTN","BB vs CO+BTN","BB vs BTN+SB"],
+    sizings:[
+      {label:"Squeeze",class:"squeeze"},
+      {label:"Call",class:"call"}
+    ]
+  }
+
+};
   
   /* UPDATE UI */
 function updateUI(){
