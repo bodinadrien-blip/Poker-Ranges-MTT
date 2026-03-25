@@ -57,25 +57,28 @@ select,button{
 }
 
 .buttons{display:flex;gap:8px}
-
-<div id="sizingLegend" class="legend"></div>
   
 .grid{
   display:grid;
-  grid-template-columns:repeat(13, minmax(22px, 1fr));
+  grid-template-columns:repeat(13, 28px); /* 🔥 clé */
   gap:2px;
-  width:100%;
+  justify-content:center;
+}
+
+.grid-wrapper{
+  overflow-x:auto;
 }
 
 .cell{
-  aspect-ratio:1/1;
-  min-width:22px;
-  font-size:clamp(8px, 2.5vw, 14px);
+  width:28px;
+  height:28px;
+  font-size:10px;
   display:flex;
   align-items:center;
   justify-content:center;
   border-radius:6px;
 }
+  
 @media (min-width:768px){
   .grid{
     grid-template-columns:repeat(13, 52px);
