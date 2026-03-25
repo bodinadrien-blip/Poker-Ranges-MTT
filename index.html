@@ -70,13 +70,9 @@
     padding:4px; /* évite coupe sur bords iOS */
   }
   
-  .cell{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:6px;
-  box-shadow:inset 0 0 0 1px rgba(0,0,0,.2);
-}
+  .cell{ 
+    aspect-ratio:1/1; 
+    font-size:clamp(8px,2.5vw,14px); }
     
   .body{
     touch-action:manipulation;
