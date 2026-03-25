@@ -187,15 +187,11 @@ select,button{
   <button id="saveInfo">💾 Save</button>
 </div>
 
-<div id="percent"></div>
-
 <div class="grid-wrapper export-zone">
 <div id="sizingLegend" class="legend"></div>
 <div id="grid" class="grid"></div>
 
 </div>
-
-<div id="stats"></div>
 
 <!-- LIGNE 1 -->
 <div class="buttons">
@@ -272,13 +268,25 @@ function updateLegend(){
   const legend=document.getElementById("sizingLegend");
   legend.innerHTML="";
 
+  const saved=JSON.parse(localStorage.getItem(rangeKey())||"{}");
+
+  let stats={};
+
+  Object.values(saved).forEach(obj=>{
+    Object.entries(obj).forEach(([k,v])=>{
+      stats[k]=(stats[k]||0)+v;
+    });
+  });
+
   CONFIG[action.value].sizings.forEach(s=>{
+    const percent = ((stats[s.class]||0)/169*100).toFixed(1);
+
     const item=document.createElement("div");
 
     item.innerHTML = `
       <div style="display:flex;align-items:center;gap:4px;">
         <div style="width:12px;height:12px;border-radius:3px;" class="${s.class}"></div>
-        ${s.label}
+        ${s.label} (${percent}%)
       </div>
     `;
 
@@ -331,13 +339,7 @@ function build(){
     d.textContent=h;
 
     if(saved[h]){
-  const val = saved[h][stack.value];
-
-  if(val){
-    d.className = "cell " + stack.value;
-  }else{
-    d.className = "cell fold";
-  }
+  d.style.background = getSplitColor(saved[h]);
 }else{
   d.className = "cell fold";
 }
@@ -367,6 +369,7 @@ function build(){
     grid.appendChild(d);
   }));
 
+  updateLegend();
   updatePercent(saved);
   updateSizingStats(saved);
 }
