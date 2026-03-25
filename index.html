@@ -174,6 +174,14 @@ select,button{
 <select id="action">
   <option value="open3bet">Open 3bet</option>
   <option value="open3betisolip">Open 3bet iso lip</option>
+  <option value="3betIP">3bet IP</option>  
+  <option value="SBvsall2call">SB vs all 2 call</option>  
+  <option value="vs3betcall&4betIP">vs 3bet call & 4 bet IP</option>  
+  <option value="vs3betcall&4betOP">vs 3bet call & 4 bet OP</option>    
+  <option value="BBdéfense">BB défense</option>  
+  <option value="squeeze">squeeze</option>    
+  <option value="squeezeBB&call">squeeze BB & call</option>      
+    
 </select>
 
 <select id="position"></select>
@@ -245,6 +253,25 @@ const CONFIG={
       {label:"Iso Poubelle SB",class:"iso-trash"}
     ]
   }
+  3betIP:{
+    positions:[
+      "HJ vs UTG",
+      "CO vs UTG",
+      "BTN vs UTG",
+      "BTN vs HJ",
+      "BTN vs CO"
+    ],
+    sizings:[
+      {label:"3bet tight",class:"3bet-tight"},
+      {label:"3bet loose",class:"3bet-loose"},
+      {label:"call 3bet",class:"call-3bet"}
+    ]
+  }  
+  
+  
+  
+  
+  
 };
 
 /* UPDATE UI */
