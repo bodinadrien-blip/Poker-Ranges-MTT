@@ -59,14 +59,11 @@ select,button{
 .buttons{display:flex;gap:8px}
   
 .grid{
-  display:grid;
-  grid-template-columns:repeat(13, 28px); /* 🔥 clé */
-  gap:2px;
-  justify-content:center;
+  grid-template-columns:repeat(13, minmax(24px,1fr));
 }
 
 .grid-wrapper{
-  overflow-x:auto;
+  max-width:100%;
 }
 
 .cell{
@@ -288,7 +285,7 @@ function updateLegend(){
 
 /* KEY */
 function rangeKey(){
-  return `range_${action.value}_${position.value}_${stack.value}`;
+  return `range_${action.value}_${position.value}`;
 }
 
 /* COULEUR SPLIT */
@@ -331,33 +328,37 @@ function build(){
     d.textContent=h;
 
     if(saved[h]){
-      if(typeof saved[h]==="object"){
-        d.style.background=getSplitColor(saved[h]);
-      }else{
-        d.className="cell "+saved[h];
-      }
-    }else{
-      d.className="cell fold";
-    }
+  const val = saved[h][stack.value];
+
+  if(val){
+    d.className = "cell " + stack.value;
+  }else{
+    d.className = "cell fold";
+  }
+}else{
+  d.className = "cell fold";
+}
 
     d.onclick=()=>{
-      if(coachMode) return;
+  if(coachMode) return;
 
-      if(!saved[h]) saved[h]={};
+  if(!saved[h]) saved[h]={};
 
-      const key=stack.value;
+  const key = stack.value;
 
-      if(!saved[h][key]) saved[h][key]=0;
+  if(!saved[h][key]) saved[h][key]=0;
 
-      saved[h][key]+=0.5;
+  saved[h][key]+=0.5;
 
-      if(saved[h][key]>=1) delete saved[h][key];
+  if(saved[h][key]>=1) delete saved[h][key];
 
-      if(Object.keys(saved[h]).length===0) delete saved[h];
+  if(Object.keys(saved[h]).length===0){
+    delete saved[h];
+  }
 
-      localStorage.setItem(rangeKey(),JSON.stringify(saved));
-      build();
-    };
+  localStorage.setItem(rangeKey(),JSON.stringify(saved));
+  build();
+};
 
     d.classList.add("cell");
     grid.appendChild(d);
