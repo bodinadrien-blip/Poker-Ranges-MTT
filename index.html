@@ -348,7 +348,8 @@ function updateUI(){
     });
   
     CONFIG[action.value].sizings.forEach(s=>{
-      const percent = ((stats[s.class]||0)/169*100).toFixed(1);
+      const raw = (stats[s.class]||0)/169*100;
+      const percent = raw > 0 ? raw.toFixed(2) : "0";
   
       const item=document.createElement("div");
   
