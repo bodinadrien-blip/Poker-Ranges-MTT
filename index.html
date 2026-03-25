@@ -70,21 +70,17 @@
     padding:4px; /* évite coupe sur bords iOS */
   }
   
-.cell{
+  .cell{
   aspect-ratio:1/1;
-
-  /* 🔥 taille x2 */
-  font-size:clamp(12px,3.8vw,22px);
-
-  /* ✅ centrage parfait */
+  font-size:clamp(9px,2.8vw,16px); /* x1.5 */
+  
   display:flex;
   align-items:center;
   justify-content:center;
+  
   text-align:center;
-
-  /* bonus visuel */
-  font-weight:700;
-}
+  font-weight:600;
+  }
     
   .body{
     touch-action:manipulation;
