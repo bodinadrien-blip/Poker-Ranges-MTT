@@ -1,3 +1,228 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Poker Ranges MTT Pro</title>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+<style>
+:root{
+  --panel:#141820;
+  --border:#1f2633;
+  --text:#fff;
+  --muted:#8a93a3;
+
+  --utg:#2ecc71;
+  --utg1:#2F8F6B;
+  --hj:#9b59b6;
+  --co:#3498db;
+  --btn:#f39c12;
+  --sb:#ff5c5c;
+  --bb:#8f2d2d;
+
+  --fold:#343b4a;
+  --info:#7aa2ff;
+  --info-active:#2ecc71;
+}
+
+body{
+  margin:0;
+  background:radial-gradient(circle at top,#121621,#07090c);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,Arial;
+}
+
+header{
+  padding:14px;
+  text-align:center;
+  font-weight:800;
+  background:#0a0c11;
+  border-bottom:1px solid var(--border);
+}
+
+.container{padding:12px}
+
+select,button{
+  width:100%;
+  padding:12px;
+  margin-bottom:10px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  background:var(--panel);
+  color:var(--text);
+  font-size:15px;
+  font-weight:600;
+}
+
+.buttons{display:flex;gap:8px}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(13, 1fr);
+  gap:2px;
+}
+
+.cell{
+  aspect-ratio:1/1;
+  font-size:clamp(10px, 2.6vw, 14px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:8px;
+}
+
+@media (min-width:768px){
+  .grid{
+    grid-template-columns:repeat(13, 52px);
+    width:calc(13 * 52px + 24px);
+    margin:0 auto;
+  }
+}
+
+@media (min-width:1200px){
+  .grid{
+    grid-template-columns:repeat(13, 60px);
+    width:calc(13 * 60px + 24px);
+  }
+}
+
+.tight{background:#e53935;}
+.loose{background:#8bc34a;}
+
+.iso-tight{background:#90caf9;}
+.iso-loose{background:#fff59d;color:#000;}
+.iso-trash{background:#8bc34a;}
+
+.legend{
+  display:flex;
+  justify-content:space-between;
+  font-size:12px;
+  margin:8px 0;
+  color:var(--muted);
+}
+
+.box{
+  width:12px;
+  height:12px;
+  border-radius:3px;
+}
+
+#percent{
+  text-align:center;
+  font-weight:700;
+  margin:8px 0;
+}
+
+.coach-on .cell{
+  pointer-events:none;
+  filter:brightness(.9);
+}
+
+#infoBtn{
+  padding:10px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  background:#0e1220;
+  color:var(--info);
+}
+
+#infoBtn.active{
+  color:var(--info-active);
+}
+
+.info-bubble{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:10px;
+  margin-bottom:10px;
+}
+
+.hidden{display:none}
+
+.export-zone{
+  background:#07090c;
+  padding:12px;
+  border-radius:12px;
+}
+
+@media (hover:none){
+  .cell:hover{
+    transform:none;
+    filter:none;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>♠️ POKER RANGES — MTT PRO</header>
+
+<div class="container">
+
+<select id="action">
+  <option value="open3bet">Open 3bet</option>
+  <option value="open3betisolip">Open 3bet iso lip</option>
+  <option value="call">Call</option>
+  <option value="raise">Raise</option>
+  <option value="allin">All-in</option>
+</select>
+
+<select id="position">
+  <option value="utg">UTG</option>
+  <option value="utg1">UTG+1</option>
+  <option value="hj">HJ</option>
+  <option value="co">CO</option>
+  <option value="btn">BTN</option>
+  <option value="sb">SB</option>
+  <option value="bb">BB</option>
+</select>
+
+<select id="stack"></select>
+
+<button id="infoBtn">ⓘ Notes</button>
+
+<div id="infoBubble" class="info-bubble hidden">
+  <textarea id="infoText"></textarea>
+  <button id="saveInfo">💾 Save</button>
+</div>
+
+<div id="percent"></div>
+
+<div class="grid-wrapper export-zone">
+
+<div class="legend">
+  <div><div class="box utg"></div>UTG</div>
+  <div><div class="box utg1"></div>UTG+1</div>
+  <div><div class="box hj"></div>HJ</div>
+  <div><div class="box co"></div>CO</div>
+  <div><div class="box btn"></div>BTN</div>
+  <div><div class="box sb"></div>SB</div>
+  <div><div class="box bb"></div>BB</div>
+</div>
+
+<div id="grid" class="grid"></div>
+
+</div>
+
+<div id="stats"></div>
+
+<!-- LIGNE 1 -->
+<div class="buttons">
+  <button id="coachToggle">🧠 Coach : ON</button>
+  <button id="viewMode">👁️ Viewer</button>
+  <button onclick="exportImage()">📤 Image</button>
+</div>
+
+<!-- LIGNE 2 -->
+<div class="buttons">
+  <button onclick="exportAll()">💾 Export ranges</button>
+  <button onclick="importAll()">📂 Import ranges</button>
+</div>
+
 <script>
 const ranks=["A","K","Q","J","T","9","8","7","6","5","4","3","2"];
 const grid=document.getElementById("grid");
@@ -221,3 +446,6 @@ stack.onchange=()=>{viewMode?buildView():build();};
 updateUI();
 build();
 </script>
+
+</body>
+</html>
