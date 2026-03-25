@@ -241,7 +241,7 @@ const CONFIG={
     ]
   }
 };
-
+  
 /* ===== UPDATE UI ===== */
 function updateUI(){
   position.innerHTML="";
@@ -258,6 +258,23 @@ function updateUI(){
     o.textContent=s.label;
     o.value=s.class;
     stack.appendChild(o);
+  });
+
+function updateLegend(){
+  const legend=document.getElementById("sizingLegend");
+  legend.innerHTML="";
+
+  CONFIG[action.value].sizings.forEach(s=>{
+    const item=document.createElement("div");
+
+    item.innerHTML = `
+      <div style="display:flex;align-items:center;gap:4px;">
+        <div style="width:12px;height:12px;border-radius:3px;" class="${s.class}"></div>
+        ${s.label}
+      </div>
+    `;
+
+    legend.appendChild(item);
   });
 }
 
