@@ -342,12 +342,16 @@ function updateLegend(){
   let stats = {};
 
   Object.entries(saved).forEach(([hand, obj])=>{
-    Object.keys(obj).forEach(k=>{
+  Object.keys(obj).forEach(k=>{
+    if(k !== "fold"){ // 🚫 ignore fold
       stats[k] = (stats[k] || 0) + 1;
-    });
+    }
   });
+});
 
-  CONFIG[action.value].sizings.forEach(s => {
+  CONFIG[action.value].sizings
+  .filter(s => s.class !== "fold")
+  .forEach(s => {
 
     const raw = (stats[s.class] || 0) / 169 * 100;
     const percent = raw > 0 ? raw.toFixed(2) : "0";
@@ -408,7 +412,7 @@ function getColor(type){
     /* VS 3BET */
     "bet4":"#ef5350",
     "call":"#8bc34a",
-    "fold":"#fff176",
+    "fold":"#343b4a",
 
     /* BB DEFENSE */
     "bet3":"#ef5350",
@@ -567,7 +571,15 @@ function getColor(type){
   
 function updateTotalStats(saved){
 
-  const totalHands = Object.keys(saved).length;
+  let totalHands = 0;
+
+  Object.entries(saved).forEach(([hand, obj])=>{
+  Object.keys(obj).forEach(k=>{
+    if(k !== "fold"){ // 🚫 ignore fold
+      stats[k] = (stats[k] || 0) + 1;
+    }
+  });
+});
 
   const percent = (totalHands / 169 * 100).toFixed(2);
 
