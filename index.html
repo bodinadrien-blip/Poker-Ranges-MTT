@@ -60,19 +60,18 @@ select,button{
 
 <div id="sizingLegend" class="legend"></div>
   
-.grid{
-  display:grid;
-  grid-template-columns:repeat(13, 1fr);
-  gap:2px;
+.grid-wrapper{
+  overflow-x:auto;
 }
 
 .cell{
   aspect-ratio:1/1;
-  font-size:clamp(10px, 2.6vw, 14px);
+  min-width:22px;
+  font-size:clamp(8px, 2.5vw, 14px);
   display:flex;
   align-items:center;
   justify-content:center;
-  border-radius:8px;
+  border-radius:6px;
 }
 
 @media (min-width:768px){
