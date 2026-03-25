@@ -114,7 +114,7 @@
 
   .bet4{background:#ef5350;}
   .call{background:#8bc34a;}
-  .fold{background:#343b4a;color:#343b4a;}
+  .fold{background:#343b4a;color:#fff;}
 
   .bet3{background:#ef5350;}
   .call-mid{background:#8bc34a;}
@@ -339,31 +339,17 @@ function updateLegend(){
 
   const saved = JSON.parse(localStorage.getItem(rangeKey()) || "{}");
 
-  function getCombos(hand){
-    if(hand[0] === hand[1]) return 6;
-    if(hand.endsWith("s")) return 4;
-    return 12;
-  }
-
   let stats = {};
 
-  // 🔁 on compte les combos par sizing
-  Object.entries(saved).forEach(([hand, obj]) => {
-
-    const combos = getCombos(hand);
-
-    Object.keys(obj).forEach(k => {
-      stats[k] = (stats[k] || 0) + combos;
+  Object.entries(saved).forEach(([hand, obj])=>{
+    Object.keys(obj).forEach(k=>{
+      stats[k] = (stats[k] || 0) + 1;
     });
-
   });
-
-  // 🎯 TOTAL GLOBAL = 1326 combos
-  const TOTAL = 1326;
 
   CONFIG[action.value].sizings.forEach(s => {
 
-    const raw = (stats[s.class] || 0) / TOTAL * 100;
+    const raw = (stats[s.class] || 0) / 169 * 100;
     const percent = raw > 0 ? raw.toFixed(2) : "0";
 
     const item = document.createElement("div");
@@ -580,23 +566,13 @@ function getColor(type){
   build();
   
 function updateTotalStats(saved){
-  let totalCombos = 0;
 
-  Object.keys(saved).forEach(hand => {
+  const totalHands = Object.keys(saved).length;
 
-    let handCombos = 0;
-
-    if(hand[0] === hand[1]) handCombos = 6;
-    else if(hand.endsWith("s")) handCombos = 4;
-    else handCombos = 12;
-
-    totalCombos += handCombos;
-  });
-
-  const percent = (totalCombos / 1326 * 100).toFixed(2);
+  const percent = (totalHands / 169 * 100).toFixed(2);
 
   document.getElementById("totalStats").textContent =
-    `📊 ${percent};
+    `📊 ${percent}%`;
 }
   
   </script>
