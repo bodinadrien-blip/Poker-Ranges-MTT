@@ -58,6 +58,8 @@ select,button{
 
 .buttons{display:flex;gap:8px}
 
+<div id="sizingLegend" class="legend"></div>
+  
 .grid{
   display:grid;
   grid-template-columns:repeat(13, 1fr);
@@ -101,6 +103,8 @@ select,button{
   font-size:12px;
   margin:8px 0;
   color:var(--muted);
+  flex-wrap:wrap;
+  gap:6px;
 }
 
 .box{
@@ -163,6 +167,13 @@ select,button{
 
 <div class="container">
 
+<select id="action">
+  <option value="open3bet">Open 3bet</option>
+  <option value="open3betisolip">Open 3bet iso lip</option>
+</select>
+
+<select id="position"></select>
+  
 <select id="stack"></select>
 
 <button id="infoBtn">ⓘ Notes</button>
