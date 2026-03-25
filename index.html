@@ -365,6 +365,28 @@ function updateStats(obj){
     `📊 Range cumulée : ${percent}% (${total} combos)`;
 }
 
+function updateSizingStats(saved){
+  let totalHands = 169;
+
+  let stats = {};
+
+  Object.values(saved).forEach(obj=>{
+    if(typeof obj === "object"){
+      Object.entries(obj).forEach(([k,v])=>{
+        stats[k] = (stats[k] || 0) + v;
+      });
+    }
+  });
+
+  let text = "";
+
+  Object.entries(stats).forEach(([k,v])=>{
+    text += `${k} : ${(v/169*100).toFixed(1)}% | `;
+  });
+
+  document.getElementById("stats").textContent = text;
+}
+  
 /* ===== EXPORT IMAGE ===== */
 function exportImage(){
   const wrapper=document.querySelector('.export-zone');
@@ -445,6 +467,8 @@ stack.onchange=()=>{viewMode?buildView():build();};
 /* ===== INIT ===== */
 updateUI();
 build();
+updateSizingStats(saved);
+  
 </script>
 
 </body>
