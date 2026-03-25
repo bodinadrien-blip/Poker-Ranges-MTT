@@ -578,7 +578,7 @@ function getColor(type){
   /* INIT */
   updateUI();
   build();
-  updateClearBtn();
+  initClearButton();
   
 function updateTotalStats(saved){
 
@@ -599,21 +599,29 @@ function updateTotalStats(saved){
   document.getElementById("totalStats").textContent =
     `📊 ${percent}%`;
 }
- const clearBtn = document.getElementById("clearRange");
+function initClearButton(){
 
-function updateClearBtn(){
-  clearBtn.disabled = coachMode; // actif seulement si coach OFF
-  clearBtn.style.opacity = coachMode ? "0.5" : "1";
-}
+  const clearBtn = document.getElementById("clearRange");
 
-clearBtn.onclick = ()=>{
-  if(coachMode) return;
-
-  if(confirm("Effacer la range actuelle ?")){
-    localStorage.removeItem(rangeKey());
-    build();
+  function updateClearBtn(){
+    clearBtn.disabled = coachMode;
+    clearBtn.style.opacity = coachMode ? "0.5" : "1";
   }
-};
+
+  clearBtn.onclick = ()=>{
+    if(coachMode) return;
+
+    if(confirm("Effacer la range actuelle ?")){
+      localStorage.removeItem(rangeKey());
+      build();
+    }
+  };
+
+  // rendre dispo globalement
+  window.updateClearBtn = updateClearBtn;
+
+  updateClearBtn();
+}
    
   </script>
   
