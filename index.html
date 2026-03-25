@@ -57,13 +57,16 @@ select,button{
 }
 
 .buttons{display:flex;gap:8px}
-  
-.grid{
-  grid-template-columns:repeat(13, minmax(24px,1fr));
-}
 
+.grid{
+  display:grid;
+  grid-template-columns:repeat(13, 28px); /* 🔥 clé */
+  gap:2px;
+  justify-content:center;
+}
+  
 .grid-wrapper{
-  max-width:100%;
+  overflow-x:auto;
 }
 
 .cell{
