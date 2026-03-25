@@ -563,27 +563,25 @@ function getColor(type){
   updateUI();
   build();
   
-  function updateTotalStats(saved){
-    let totalCombos = 0;
-  
-    Object.entries(saved).forEach(([hand,obj])=>{
-      let handCombos = 0;
-  
-      if(hand[0] === hand[1]) handCombos = 6;
-      else if(hand.endsWith("s")) handCombos = 4;
-      else handCombos = 12;
-  
-      let freq = 0;
-      Object.values(obj).forEach(v=>freq += v);
-  
-      totalCombos += handCombos * freq;
-    });
-  
-    const percent = (totalCombos / 1326 * 100).toFixed(2);
-  
-    document.getElementById("totalStats").textContent =
-      `📊 ${percent}% · ${Math.round(totalCombos)} combos`;
-  }
+function updateTotalStats(saved){
+  let totalCombos = 0;
+
+  Object.keys(saved).forEach(hand => {
+
+    let handCombos = 0;
+
+    if(hand[0] === hand[1]) handCombos = 6;
+    else if(hand.endsWith("s")) handCombos = 4;
+    else handCombos = 12;
+
+    totalCombos += handCombos;
+  });
+
+  const percent = (totalCombos / 1326 * 100).toFixed(2);
+
+  document.getElementById("totalStats").textContent =
+    `📊 ${percent}% · ${totalCombos} combos`;
+}
   
   </script>
   
