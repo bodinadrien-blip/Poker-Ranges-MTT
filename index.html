@@ -408,15 +408,38 @@ function updateUI(){
     return "#444";
   }
   
-  function getColor(type){
-    return {
-      "tight":"#e53935",
-      "loose":"#8bc34a",
-      "iso-tight":"#90caf9",
-      "iso-loose":"#fff59d",
-      "iso-trash":"#8bc34a"
-    }[type] || "#444";
-  }
+function getColor(type){
+  return {
+
+    /* OPEN */
+    "tight":"#e53935",
+    "loose":"#8bc34a",
+
+    /* ISO */
+    "iso-tight":"#90caf9",
+    "iso-loose":"#fff59d",
+    "iso-trash":"#8bc34a",
+
+    /* 3BET */
+    "bet3-tight":"#ef5350",
+    "bet3-loose":"#fff176",
+    "call-3bet":"#8bc34a",
+
+    /* VS 3BET */
+    "bet4":"#ef5350",
+    "call":"#8bc34a",
+    "fold":"#fff176",
+
+    /* BB DEFENSE */
+    "bet3":"#ef5350",
+    "call-mid":"#8bc34a",
+    "call-small":"#fff176",
+
+    /* SQUEEZE */
+    "squeeze":"#64b5f6"
+
+  }[type] || "#444";
+}
   
   /* BUILD */
   function build(){
