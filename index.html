@@ -342,39 +342,54 @@ function updateUI(){
   
   /* LÉGENDE */
 function updateLegend(){
+
   const legend = document.getElementById("sizingLegend");
   legend.innerHTML = "";
 
   const saved = JSON.parse(localStorage.getItem(rangeKey()) || "{}");
 
+  function getCombos(hand){
+    if(hand[0] === hand[1]) return 6;
+    if(hand.endsWith("s")) return 4;
+    return 12;
+  }
+
   let stats = {};
 
-  Object.entries(saved).forEach(([hand, obj])=>{
-  Object.keys(obj).forEach(k=>{
-    if(k !== "fold"){ // 🚫 ignore fold
-      stats[k] = (stats[k] || 0) + 1;
-    }
+  // 🔥 on compte les combos réels par sizing
+  Object.entries(saved).forEach(([hand, obj]) => {
+
+    const combos = getCombos(hand);
+
+    Object.keys(obj).forEach(k => {
+      if(k !== "fold"){ // ignore fold
+        stats[k] = (stats[k] || 0) + combos;
+      }
+    });
+
   });
-});
+
+  const TOTAL = 1326;
 
   CONFIG[action.value].sizings
-  .filter(s => s.class !== "fold")
-  .forEach(s => {
+    .filter(s => s.class !== "fold")
+    .forEach(s => {
 
-    const raw = (stats[s.class] || 0) / 169 * 100;
-    const percent = raw > 0 ? raw.toFixed(2) : "0";
+      const raw = (stats[s.class] || 0) / TOTAL * 100;
+      const percent = raw > 0 ? raw.toFixed(2) : "0";
 
-    const item = document.createElement("div");
+      const item = document.createElement("div");
 
-    item.innerHTML = `
-      <div style="display:flex;align-items:center;gap:4px;">
-        <div style="width:12px;height:12px;border-radius:3px;" class="${s.class}"></div>
-        ${s.label} (${percent}%)
-      </div>
-    `;
+      item.innerHTML = `
+        <div style="display:flex;align-items:center;gap:4px;">
+          <div style="width:12px;height:12px;border-radius:3px;" class="${s.class}"></div>
+          ${s.label} (${percent}%)
+        </div>
+      `;
 
-    legend.appendChild(item);
-  });
+      legend.appendChild(item);
+    });
+}
 }
   
   /* KEY */
@@ -582,19 +597,25 @@ function getColor(type){
   
 function updateTotalStats(saved){
 
-  let totalHands = 0;
+  let totalCombos = 0;
 
-  Object.entries(saved).forEach(([hand, obj])=>{
+  function getCombos(hand){
+    if(hand[0] === hand[1]) return 6;
+    if(hand.endsWith("s")) return 4;
+    return 12;
+  }
+
+  Object.entries(saved).forEach(([hand, obj]) => {
 
     const hasActive = Object.keys(obj).some(k => k !== "fold");
 
     if(hasActive){
-      totalHands++;
+      totalCombos += getCombos(hand);
     }
 
   });
 
-  const percent = (totalHands / 169 * 100).toFixed(2);
+  const percent = (totalCombos / 1326 * 100).toFixed(2);
 
   document.getElementById("totalStats").textContent =
     `📊 ${percent}%`;
