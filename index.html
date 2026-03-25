@@ -333,36 +333,57 @@ function updateUI(){
 } 
   
   /* LÉGENDE */
-  function updateLegend(){
-    const legend=document.getElementById("sizingLegend");
-    legend.innerHTML="";
-  
-    const saved=JSON.parse(localStorage.getItem(rangeKey())||"{}");
-  
-    let stats={};
-  
-    Object.values(saved).forEach(obj=>{
-      Object.entries(obj).forEach(([k,v])=>{
-        stats[k]=(stats[k]||0)+v;
-      });
-    });
-  
-    CONFIG[action.value].sizings.forEach(s=>{
-      const raw = (stats[s.class]||0)/169*100;
-      const percent = raw > 0 ? raw.toFixed(2) : "0";
-  
-      const item=document.createElement("div");
-  
-      item.innerHTML = `
-        <div style="display:flex;align-items:center;gap:4px;">
-          <div style="width:12px;height:12px;border-radius:3px;" class="${s.class}"></div>
-          ${s.label} (${percent}%)
-        </div>
-      `;
-  
-      legend.appendChild(item);
-    });
+function updateLegend(){
+  const legend = document.getElementById("sizingLegend");
+  legend.innerHTML = "";
+
+  const saved = JSON.parse(localStorage.getItem(rangeKey()) || "{}");
+
+  // 🔢 fonction combos
+  function getCombos(hand){
+    if(hand[0] === hand[1]) return 6;
+    if(hand.endsWith("s")) return 4;
+    return 12;
   }
+
+  let stats = {};
+  let totalCombos = 0;
+
+  // 🔁 calcul combos réels (sans prendre en compte le mix)
+  Object.entries(saved).forEach(([hand, obj]) => {
+
+    const combos = getCombos(hand);
+
+    totalCombos += combos;
+
+    // ⚠️ présence uniquement (pas de 0.5)
+    Object.keys(obj).forEach(k => {
+      stats[k] = (stats[k] || 0) + combos;
+    });
+
+  });
+
+  // 🎨 affichage légende avec %
+  CONFIG[action.value].sizings.forEach(s => {
+
+    const raw = totalCombos
+      ? (stats[s.class] || 0) / totalCombos * 100
+      : 0;
+
+    const percent = raw > 0 ? raw.toFixed(2) : "0";
+
+    const item = document.createElement("div");
+
+    item.innerHTML = `
+      <div style="display:flex;align-items:center;gap:4px;">
+        <div style="width:12px;height:12px;border-radius:3px;" class="${s.class}"></div>
+        ${s.label} (${percent}% • ${stats[s.class] || 0} combos)
+      </div>
+    `;
+
+    legend.appendChild(item);
+  });
+}
   
   /* KEY */
   function rangeKey(){
