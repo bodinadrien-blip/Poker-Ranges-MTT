@@ -230,7 +230,7 @@ const CONFIG={
     positions:["LJ/UTG","HJ","CO","BTN","SB"],
     sizings:[
       {label:"3x Tight",class:"tight"},
-      {label:"3x Loose",class:"loose"}
+      {label:"3x Loose",class:"loose"},
       {label:"Fold",class:"fold"}
     ]
   },
@@ -240,7 +240,7 @@ const CONFIG={
     sizings:[
       {label:"Iso Tight",class:"iso-tight"},
       {label:"Iso Loose",class:"iso-loose"},
-      {label:"Iso Poubelle SB",class:"iso-trash"}
+      {label:"Iso Poubelle SB",class:"iso-trash"},
       {label:"Fold",class:"fold"}
     ]
   },
@@ -250,7 +250,7 @@ const CONFIG={
     sizings:[
       {label:"3bet Tight",class:"bet3-tight"},
       {label:"3bet Loose",class:"bet3-loose"},
-      {label:"Call 3bet",class:"call-3bet"}
+      {label:"Call 3bet",class:"call-3bet"},
       {label:"Fold",class:"fold"}
     ]
   },
@@ -260,7 +260,7 @@ const CONFIG={
     sizings:[
       {label:"3bet Tight",class:"bet3-tight"},
       {label:"3bet Loose",class:"bet3-loose"},
-      {label:"Call 3bet",class:"call-3bet"}
+      {label:"Call 3bet",class:"call-3bet"},
       {label:"Fold",class:"fold"}
       ]
   },
@@ -288,7 +288,7 @@ const CONFIG={
     sizings:[
       {label:"3bet",class:"bet3"},
       {label:"Call vs 2.5/3bb",class:"call-mid"},
-      {label:"Call vs 2bb",class:"call-small"}
+      {label:"Call vs 2bb",class:"call-small"},
       {label:"Fold",class:"fold"}
     ]
   },
@@ -297,7 +297,7 @@ const CONFIG={
     positions:["BTN vs HJ+CO","SB vs HJ+LJ","SB vs LJ+BTN","SB vs HJ+BTN","SB vs CO+BTN"],
     sizings:[
       {label:"Squeeze",class:"squeeze"},
-      {label:"Call",class:"call"}
+      {label:"Call",class:"call"},
       {label:"Fold",class:"fold"}
     ]
   },
@@ -306,7 +306,7 @@ const CONFIG={
     positions:["BB vs LJ+BTN","BB vs HJ+BTN","BB vs CO+BTN","BB vs BTN+SB"],
     sizings:[
       {label:"Squeeze",class:"squeeze"},
-      {label:"Call",class:"call"}
+      {label:"Call",class:"call"},
       {label:"Fold",class:"fold"}
     ]
   }
@@ -565,7 +565,7 @@ function getColor(type){
   coachBtn.onclick=()=>{
     coachMode=!coachMode;
     document.body.classList.toggle("coach-on",coachMode);
-    coachBtn.textContent=coachMode?"🧠 Coach : ON":"🧠 Coach : 
+    coachBtn.textContent = coachMode ? "🧠 Coach : ON" : "🧠 Coach : OFF";
     
     updateClearBtn();
   };
@@ -578,6 +578,7 @@ function getColor(type){
   /* INIT */
   updateUI();
   build();
+  updateClearBtn();
   
 function updateTotalStats(saved){
 
