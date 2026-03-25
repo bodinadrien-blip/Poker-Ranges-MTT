@@ -186,7 +186,7 @@ select,button{
 <div id="percent"></div>
 
 <div class="grid-wrapper export-zone">
-
+<div id="sizingLegend" class="legend"></div>
 <div id="grid" class="grid"></div>
 
 </div>
@@ -217,7 +217,7 @@ const position=document.getElementById("position");
 let coachMode=true;
 let viewMode=false;
 
-/* ===== CONFIG ===== */
+/* CONFIG */
 const CONFIG={
   open3bet:{
     positions:["LJ/UTG","HJ","CO","BTN","SB"],
@@ -241,8 +241,8 @@ const CONFIG={
     ]
   }
 };
-  
-/* ===== UPDATE UI ===== */
+
+/* UPDATE UI */
 function updateUI(){
   position.innerHTML="";
   CONFIG[action.value].positions.forEach(p=>{
@@ -260,6 +260,10 @@ function updateUI(){
     stack.appendChild(o);
   });
 
+  updateLegend();
+}
+
+/* LÉGENDE */
 function updateLegend(){
   const legend=document.getElementById("sizingLegend");
   legend.innerHTML="";
@@ -278,12 +282,40 @@ function updateLegend(){
   });
 }
 
-/* ===== KEY ===== */
+/* KEY */
 function rangeKey(){
   return `range_${action.value}_${position.value}_${stack.value}`;
 }
 
-/* ===== BUILD ===== */
+/* COULEUR SPLIT */
+function getSplitColor(obj){
+  const entries = Object.entries(obj);
+
+  if(entries.length === 1){
+    return getColor(entries[0][0]);
+  }
+
+  if(entries.length === 2){
+    const [a,b] = entries;
+    return `linear-gradient(to right,
+      ${getColor(a[0])} 50%,
+      ${getColor(b[0])} 50%)`;
+  }
+
+  return "#444";
+}
+
+function getColor(type){
+  return {
+    "tight":"#e53935",
+    "loose":"#8bc34a",
+    "iso-tight":"#90caf9",
+    "iso-loose":"#fff59d",
+    "iso-trash":"#8bc34a"
+  }[type] || "#444";
+}
+
+/* BUILD */
 function build(){
   grid.innerHTML="";
   const saved=JSON.parse(localStorage.getItem(rangeKey())||"{}");
@@ -292,102 +324,70 @@ function build(){
     const h=i===j?r+r:i<j?r+c+"s":c+r+"o";
 
     const d=document.createElement("div");
-    d.className="cell "+(saved[h]||"fold");
     d.textContent=h;
+
+    if(saved[h]){
+      if(typeof saved[h]==="object"){
+        d.style.background=getSplitColor(saved[h]);
+      }else{
+        d.className="cell "+saved[h];
+      }
+    }else{
+      d.className="cell fold";
+    }
 
     d.onclick=()=>{
       if(coachMode) return;
 
-      if(saved[h]) delete saved[h];
-      else saved[h]=stack.value;
+      if(!saved[h]) saved[h]={};
+
+      const key=stack.value;
+
+      if(!saved[h][key]) saved[h][key]=0;
+
+      saved[h][key]+=0.5;
+
+      if(saved[h][key]>=1) delete saved[h][key];
+
+      if(Object.keys(saved[h]).length===0) delete saved[h];
 
       localStorage.setItem(rangeKey(),JSON.stringify(saved));
       build();
     };
 
+    d.classList.add("cell");
     grid.appendChild(d);
   }));
 
   updatePercent(saved);
+  updateSizingStats(saved);
 }
 
-/* ===== % ===== */
+/* % GLOBAL */
 function updatePercent(saved){
   const count=Object.keys(saved).length;
   percent.textContent=`${(count/169*100).toFixed(1)}%`;
 }
 
-/* ===== VIEWER ===== */
-const POS_ORDER=["LJ/UTG","HJ","CO","BTN","SB","BB"];
-
-function combosCount(hand){
-  if(hand[0]===hand[1]) return 6;
-  if(hand.endsWith("s")) return 4;
-  return 12;
-}
-
-function buildView(){
-  grid.innerHTML="";
-  let merged={};
-
-  const idx=POS_ORDER.indexOf(position.value);
-  const allowed=POS_ORDER.slice(0,idx+1);
-
-  Object.keys(localStorage).forEach(k=>{
-    if(k.startsWith(`range_${action.value}`)){
-      const data=JSON.parse(localStorage.getItem(k));
-
-      Object.entries(data).forEach(([hand,val])=>{
-        merged[hand]=val;
-      });
-    }
-  });
-
-  ranks.forEach((r,i)=>ranks.forEach((c,j)=>{
-    const h=i===j?r+r:i<j?r+c+"s":c+r+"o";
-
-    const d=document.createElement("div");
-    d.className="cell "+(merged[h]||"fold");
-    d.textContent=h;
-
-    grid.appendChild(d);
-  }));
-
-  updateStats(merged);
-}
-
-function updateStats(obj){
-  let total=0;
-  Object.keys(obj).forEach(h=>total+=combosCount(h));
-  const percent=(total/1326*100).toFixed(2);
-
-  document.getElementById("stats").textContent=
-    `📊 Range cumulée : ${percent}% (${total} combos)`;
-}
-
+/* % PAR SIZING */
 function updateSizingStats(saved){
-  let totalHands = 169;
-
-  let stats = {};
+  let stats={};
 
   Object.values(saved).forEach(obj=>{
-    if(typeof obj === "object"){
-      Object.entries(obj).forEach(([k,v])=>{
-        stats[k] = (stats[k] || 0) + v;
-      });
-    }
+    Object.entries(obj).forEach(([k,v])=>{
+      stats[k]=(stats[k]||0)+v;
+    });
   });
 
-  let text = "";
-
+  let text="";
   Object.entries(stats).forEach(([k,v])=>{
-    text += `${k} : ${(v/169*100).toFixed(1)}% | `;
+    text+=`${k}: ${(v/169*100).toFixed(1)}% | `;
   });
 
-  document.getElementById("stats").textContent = text;
+  document.getElementById("stats").textContent=text;
 }
-  
-/* ===== EXPORT IMAGE ===== */
+
+/* EXPORT IMAGE */
 function exportImage(){
   const wrapper=document.querySelector('.export-zone');
 
@@ -405,12 +405,14 @@ function exportImage(){
   });
 }
 
-/* ===== EXPORT JSON ===== */
+/* EXPORT JSON */
 function exportAll(){
   const data={};
 
   Object.keys(localStorage).forEach(k=>{
-    if(k.startsWith("range_")) data[k]=JSON.parse(localStorage.getItem(k));
+    if(k.startsWith("range_")){
+      data[k]=JSON.parse(localStorage.getItem(k));
+    }
   });
 
   const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
@@ -420,7 +422,7 @@ function exportAll(){
   a.click();
 }
 
-/* ===== IMPORT ===== */
+/* IMPORT */
 function importAll(){
   const input=document.createElement("input");
   input.type="file";
@@ -442,7 +444,7 @@ function importAll(){
   input.click();
 }
 
-/* ===== COACH ===== */
+/* COACH */
 const coachBtn=document.getElementById("coachToggle");
 coachBtn.onclick=()=>{
   coachMode=!coachMode;
@@ -450,25 +452,14 @@ coachBtn.onclick=()=>{
   coachBtn.textContent=coachMode?"🧠 Coach : ON":"🧠 Coach : OFF";
 };
 
-/* ===== VIEW MODE ===== */
-document.getElementById("viewMode").onclick=()=>{
-  viewMode=!viewMode;
-  document.getElementById("viewMode").textContent=
-    viewMode?"✏️ Edit Mode":"👁️ Viewer";
+/* EVENTS */
+action.onchange=()=>{updateUI();build();};
+position.onchange=build;
+stack.onchange=build;
 
-  viewMode?buildView():build();
-};
-
-/* ===== EVENTS ===== */
-action.onchange=()=>{updateUI();viewMode?buildView():build();};
-position.onchange=()=>{viewMode?buildView():build();};
-stack.onchange=()=>{viewMode?buildView():build();};
-
-/* ===== INIT ===== */
+/* INIT */
 updateUI();
 build();
-updateSizingStats(saved);
-  
 </script>
 
 </body>
