@@ -537,36 +537,32 @@ function getColor(type){
   /* EXPORT JSON */
   function exportAll(){
 
-  const actions = Object.keys(CONFIG);
+  const actionName = action.value; // 🔥 action actuelle
+  const data = {};
 
-  actions.forEach(actionName => {
+  Object.keys(localStorage).forEach(key => {
 
-    const data = {};
-
-    Object.keys(localStorage).forEach(key => {
-
-      // on filtre uniquement les ranges de cette action
-      if(key.startsWith(`range_${actionName}_`)){
-        data[key] = JSON.parse(localStorage.getItem(key));
-      }
-
-    });
-
-    // skip si vide
-    if(Object.keys(data).length === 0) return;
-
-    const blob = new Blob(
-      [JSON.stringify(data,null,2)],
-      {type:"application/json"}
-    );
-
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `${actionName}_ranges.json`;
-    a.click();
+    if(key.startsWith(`range_${actionName}_`)){
+      data[key] = JSON.parse(localStorage.getItem(key));
+    }
 
   });
 
+  // si aucune range
+  if(Object.keys(data).length === 0){
+    alert("Aucune range à exporter pour cette action");
+    return;
+  }
+
+  const blob = new Blob(
+    [JSON.stringify(data, null, 2)],
+    { type: "application/json" }
+  );
+
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `${actionName}_ranges.json`;
+  a.click();
 }
   
   /* IMPORT */
